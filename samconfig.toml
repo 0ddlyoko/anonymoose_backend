@@ -3,7 +3,7 @@ version = 0.1
 [default.deploy]
 [default.deploy.parameters]
 stack_name = "anonymoose-backend"
-s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-1fcmo32zxmwaj"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-1vfrklj5e5ns"
 s3_prefix = "anonymoose-backend"
 region = "eu-west-3"
 capabilities = "CAPABILITY_IAM"

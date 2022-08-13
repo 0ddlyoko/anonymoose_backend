@@ -61,7 +61,9 @@
         "lambda:DeleteFunction",
         "lambda:GetFunction",
         "lambda:GetFunctionConfiguration",
+        "lambda:GetLayerVersion",
         "lambda:ListTags",
+        "lambda:PublishLayerVersion",
         "lambda:RemovePermission",
         "lambda:TagResource",
         "lambda:UntagResource",
@@ -69,7 +71,8 @@
         "lambda:UpdateFunctionConfiguration"
       ],
       "Resource": [
-        "arn:aws:lambda:eu-west-3:260316834066:function:*"
+        "arn:aws:lambda:eu-west-3:260316834066:function:*",
+        "arn:aws:lambda:eu-west-3:260316834066:layer:*"
       ]
     },
     {
