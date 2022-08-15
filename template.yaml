@@ -34,6 +34,23 @@ Resources:
         - nodejs16.x
 
 
+  WebEndpoint:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Models:
+        UserCreation:
+          type: object
+          required:
+            - name
+            - email
+          properties:
+            name:
+              type: string
+            email:
+              type: String
+
+
   GetUsersFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -43,15 +60,16 @@ Resources:
             TableName: !Ref UserTable
       Environment:
         Variables:
-          TABLE_NAME: !Ref UserTable
-      CodeUri: src/user
+          TABLE_USER: !Ref UserTable
+      CodeUri: src/app/user
       Handler: app.getAll
       Events:
         GetUsers:
           Type: Api
           Properties:
             Path: /user
-            Method: get
+            Method: GET
+            RestApiId: WebEndpoint
       Layers:
         - !Ref CommonLayer
 
@@ -64,18 +82,44 @@ Resources:
             TableName: !Ref UserTable
       Environment:
         Variables:
-          TABLE_NAME: !Ref UserTable
-      CodeUri: src/user
+          TABLE_USER: !Ref UserTable
+      CodeUri: src/app/user
       Handler: app.getOne
       Events:
         GetUser:
           Type: Api
           Properties:
             Path: /user/{id}
-            Method: get
+            Method: GET
+            RestApiId: WebEndpoint
             RequestParameters:
             - method.request.path.id:
                 Required: true
+      Layers:
+        - !Ref CommonLayer
+
+  CreateUserFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: Create a new user
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UserTable
+      Environment:
+        Variables:
+          TABLE_USER: !Ref UserTable
+      CodeUri: src/app/user
+      Handler: app.postOne
+      Events:
+        PostUser:
+          Type: Api
+          Properties:
+            Path: /user
+            Method: POST
+            RestApiId: WebEndpoint
+            RequestModel:
+              Model: UserCreation
+              Required: true
       Layers:
         - !Ref CommonLayer
 
@@ -95,4 +139,4 @@ Resources:
 Outputs:
   WebEndpoint:
     Description: "API Gateway endpoint URL for Prod stage"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+    Value: !Sub "https://${WebEndpoint}.execute-api.${AWS::Region}.amazonaws.com/Prod/"

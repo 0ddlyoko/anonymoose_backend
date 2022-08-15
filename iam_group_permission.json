@@ -24,6 +24,7 @@
         "cloudformation:ExecuteChangeSet",
         "cloudformation:GetTemplateSummary",
         "cloudformation:ListStackResources",
+        "cloudformation:ListStacks",
         "cloudformation:UpdateStack"
       ],
       "Resource": [
@@ -40,6 +41,7 @@
         "s3:GetEncryptionConfiguration",
         "s3:GetObject",
         "s3:GetBucketPublicAccessBlock",
+        "s3:ListBucket",
         "s3:PutObject",
         "s3:PutBucketPolicy",
         "s3:PutBucketTagging",
