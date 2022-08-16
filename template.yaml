@@ -11,11 +11,15 @@ Transform: AWS::Serverless-2016-10-31
 
 Globals:
   Function:
-    Timeout: 10
+    Timeout: 4
     Runtime: nodejs16.x
     Architectures:
       - x86_64
+    MemorySize: 256
+    Layers:
+      - Ref: CommonLayer
   Api:
+    OpenApiVersion: 3.0.0
     Cors:
       AllowMethods: "'GET'"
       AllowOrigin: "'*'"
@@ -34,94 +38,128 @@ Resources:
         - nodejs16.x
 
 
+  # API
   WebEndpoint:
     Type: AWS::Serverless::Api
     Properties:
-      StageName: Prod
-      Models:
-        UserCreation:
-          type: object
-          required:
-            - name
-            - email
-          properties:
-            name:
-              type: string
-            email:
-              type: String
+      Name: Anonymoose-Test-API
+      EndpointConfiguration:
+        Type: EDGE
+      StageName: Test
+      DefinitionBody:
+        Fn::Transform:
+          Name: AWS::Include
+          Parameters:
+            Location: api.yaml
 
 
+  # IAM
+  APIGatewayInvokeLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service: "apigateway.amazonaws.com"
+            Action: "sts:AssumeRole"
+      Path: /
+      Policies:
+        - PolicyName: ApiGateway
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action:
+                  - lambda:InvokeFunction
+                Resource:
+                  - '*'
+
+
+  # Lambda Functions
   GetUsersFunction:
     Type: AWS::Serverless::Function
     Properties:
       Description: Retrieves all users
+      FunctionName: Anonymoose-Test-getUsers
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref UserTable
+      CodeUri: src/app/user
+      Handler: app.getUsers
       Environment:
         Variables:
           TABLE_USER: !Ref UserTable
-      CodeUri: src/app/user
-      Handler: app.getAll
-      Events:
-        GetUsers:
-          Type: Api
-          Properties:
-            Path: /user
-            Method: GET
-            RestApiId: WebEndpoint
-      Layers:
-        - !Ref CommonLayer
 
   GetUserFunction:
     Type: AWS::Serverless::Function
     Properties:
       Description: Retrieve a user
+      FunctionName: Anonymoose-Test-getUser
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref UserTable
+      CodeUri: src/app/user
+      Handler: app.getUser
       Environment:
         Variables:
           TABLE_USER: !Ref UserTable
-      CodeUri: src/app/user
-      Handler: app.getOne
-      Events:
-        GetUser:
-          Type: Api
-          Properties:
-            Path: /user/{id}
-            Method: GET
-            RestApiId: WebEndpoint
-            RequestParameters:
-            - method.request.path.id:
-                Required: true
-      Layers:
-        - !Ref CommonLayer
 
-  CreateUserFunction:
+  PostUserFunction:
     Type: AWS::Serverless::Function
     Properties:
       Description: Create a new user
+      FunctionName: Anonymoose-Test-postUser
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref UserTable
+      CodeUri: src/app/user
+      Handler: app.postUser
       Environment:
         Variables:
           TABLE_USER: !Ref UserTable
+
+  PostUserPasswordFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: Edit a user's password
+      FunctionName: Anonymoose-Test-postUserPassword
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UserTable
       CodeUri: src/app/user
-      Handler: app.postOne
-      Events:
-        PostUser:
-          Type: Api
-          Properties:
-            Path: /user
-            Method: POST
-            RestApiId: WebEndpoint
-            RequestModel:
-              Model: UserCreation
-              Required: true
-      Layers:
-        - !Ref CommonLayer
+      Handler: password.postUserPassword
+      Environment:
+        Variables:
+          TABLE_USER: !Ref UserTable
+
+  PostUserResetPasswordFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: Ask Change password
+      FunctionName: Anonymoose-Test-postUserResetPassword
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UserTable
+      CodeUri: src/app/user
+      Handler: password.postUserResetPassword
+      Environment:
+        Variables:
+          TABLE_USER: !Ref UserTable
+
+  PostResetPasswordFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: Ask to Reset password
+      FunctionName: Anonymoose-Test-postResetPassword
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UserTable
+      CodeUri: src/app/user
+      Handler: password.postResetPassword
+      Environment:
+        Variables:
+          TABLE_USER: !Ref UserTable
 
 
   # Simple syntax to create a DynamoDB table with a single attribute primary key, more in
@@ -138,5 +176,5 @@ Resources:
 
 Outputs:
   WebEndpoint:
-    Description: "API Gateway endpoint URL for Prod stage"
-    Value: !Sub "https://${WebEndpoint}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+    Description: "API Gateway endpoint URL for Test stage"
+    Value: !Sub "https://${WebEndpoint}.execute-api.${AWS::Region}.amazonaws.com/Test/"

@@ -14,8 +14,8 @@ const userToJson = user => {
     };
 };
 
-exports.getAll = (event, ctx, callback) => {
-    console.info('getAll', 'received: ', event);
+exports.getUsers = (event, ctx, callback) => {
+    console.info('getUsers', 'received: ', event);
 
     db.scan({
         TableName: TABLE_USER,
@@ -31,8 +31,8 @@ exports.getAll = (event, ctx, callback) => {
         .then(data => callback(null, data));
 };
 
-exports.getOne = (event, ctx, callback) => {
-    console.info('getOne', 'received: ', event);
+exports.getUser = (event, ctx, callback) => {
+    console.info('getUser', 'received: ', event);
 
     const id = event.pathParameters.id;
     // This should be an uuid
@@ -59,8 +59,8 @@ exports.getOne = (event, ctx, callback) => {
         .then(data => callback(null, data));
 };
 
-exports.postOne = (event, ctx, callback) => {
-    console.info('postOne', 'received: ', event);
+exports.postUser = (event, ctx, callback) => {
+    console.info('postUser', 'received: ', event);
 
     if (!event.body) {
         callback(null, common.makeErrorRequest(400, "Please enter a valid JSON object"));

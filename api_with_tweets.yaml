@@ -1,0 +1,512 @@
+openapi: 3.0.0
+info:
+  title: "Anonymoose API"
+  description: "Official Anonymoose API."
+  version: "1.0.0"
+  termsOfService: "https://swagger.io/terms/"
+  license:
+    name: "MIT"
+    url: "https://opensource.org/licenses/MIT"
+
+servers:
+  - url: https://api.anonymoose.com/v1
+    description: TEST
+
+x-amazon-apigateway-request-validators:
+  all:
+    validateRequestBody: true
+    validateRequestParameters: true
+  params:
+    validateRequestBody: false
+    validateRequestParameters: true
+  body:
+    validateRequestBody: true
+    validateRequestParameters: false
+
+
+paths:
+  /users:
+    get:
+      operationId: getUsers
+      summary: "Retrieves users"
+      description: "Retrieve users based on some condition"
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetUsersFunction.Arn}/invocations
+        httpMethod: "GET"
+        timeoutInMillis: 4000
+        type: "aws_proxy"
+      parameters:
+        - name: 'search'
+          in: query
+          description: "Search based on the name of the user"
+          required: true
+          schema:
+            type: string
+        - name: 'limit'
+          in: query
+          description: "Limit the amount of result. Between 1 and 100. Default = 10"
+          schema:
+            type: integer
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserList'
+        401:
+          $ref: "#/components/responses/UnauthorizedError"
+        404:
+          $ref: "#/components/responses/NotFoundError"
+      security:
+        - amazonCognito: []
+      tags:
+        - User
+    post:
+      operationId: postUser
+      summary: "Create a new user or ask the creation of a new user"
+      description: "Create a new user or ask the creation of a new user"
+      x-amazon-apigateway-request-validator: all
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PostUserFunction.Arn}/invocations
+        httpMethod: "POST"
+        timeoutInMillis: 4000
+        type: "aws_proxy"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              anyOf:
+                - $ref: '#/components/schemas/UserCreation'
+                - $ref: '#/components/schemas/UserTempCreation'
+      responses:
+        201:
+          description: OK
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - $ref: '#/components/schemas/User'
+                  - $ref: '#/components/schemas/Empty'
+        401:
+          $ref: "#/components/responses/UnauthorizedError"
+        409:
+          description: If a token has already been sent to this email last hour
+      security:
+        - amazonCognito: []
+      tags:
+        - User
+    options:
+      responses:
+        200:
+          $ref: '#/components/responses/cors'
+        400:
+          $ref: '#/components/responses/cors'
+        500:
+          $ref: '#/components/responses/cors'
+      x-amazon-apigateway-integration:
+        responses:
+          default:
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Max-Age: "'7200'"
+              method.response.header.Access-Control-Allow-Methods: "'OPTIONS,HEAD,GET,POST,PUT,DELETE'"
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+        passthroughBehavior: "when_no_match"
+        timeoutInMillis: 29000
+        requestTemplates:
+          application/json: "{ \"statusCode\": 200 }"
+        type: "mock"
+  /users/{userId}:
+    get:
+      operationId: getUser
+      summary: "Retrieve a user"
+      description: "Retrieve information about a single user"
+      x-amazon-apigateway-request-validator: params
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetUserFunction.Arn}/invocations
+        httpMethod: "GET"
+        timeoutInMillis: 4000
+        type: "aws_proxy"
+      parameters:
+        - $ref: '#/components/parameters/userId'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        401:
+          $ref: "#/components/responses/UnauthorizedError"
+        404:
+          $ref: "#/components/responses/NotFoundError"
+      security:
+        - amazonCognito: []
+      tags:
+        - User
+  /users/{userId}/password:
+    post:
+      operationId: postUserPassword
+      summary: "Change password"
+      description: "Change the password of the user"
+      x-amazon-apigateway-request-validator: all
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PostUserPasswordFunction.Arn}/invocations
+          httpMethod: "POST"
+        timeoutInMillis: 4000
+        type: "aws_proxy"
+      parameters:
+        - $ref: '#/components/parameters/userId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserChangePassword'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        401:
+          $ref: "#/components/responses/UnauthorizedError"
+        404:
+          $ref: "#/components/responses/NotFoundError"
+      security:
+        - amazonCognito: []
+      tags:
+        - User
+  /users/{userId}/reset_password:
+    post:
+      operationId: postUserResetPassword
+      summary: "Ask Change password"
+      description: "Ask to change the password of the user"
+      x-amazon-apigateway-request-validator: all
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PostUserResetPasswordFunction.Arn}/invocations
+        httpMethod: "POST"
+        timeoutInMillis: 4000
+        type: "aws_proxy"
+      parameters:
+        - $ref: '#/components/parameters/userId'
+      responses:
+        200:
+          description: OK
+        401:
+          $ref: "#/components/responses/UnauthorizedError"
+        404:
+          $ref: "#/components/responses/NotFoundError"
+      security:
+        - amazonCognito: []
+      tags:
+        - User
+  /users/reset_password:
+    post:
+      operationId: postResetPassword
+      summary: "Ask to Reset password"
+      description: "Ask to reset the password of a user"
+      x-amazon-apigateway-request-validator: all
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PostResetPasswordFunction.Arn}/invocations
+        httpMethod: "POST"
+        timeoutInMillis: 4000
+        type: "aws_proxy"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserAskPasswordChange'
+      responses:
+        200:
+          description: OK even if the target entity doesn't exist
+        401:
+          $ref: "#/components/responses/UnauthorizedError"
+      security:
+        - amazonCognito: []
+      tags:
+        - User
+
+  /tweets:
+    get:
+      summary: "Retrieves tweets"
+      description: "Retrieve tweets based on some condition"
+      parameters:
+        - name: 'author'
+          in: query
+          description: "Search based on the author of the tweet"
+          required: false
+          schema:
+            type: string
+        - name: 'limit'
+          in: query
+          description: "Limit the amount of result. Between 1 and 100. Default = 10"
+          schema:
+            type: integer
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TweetList'
+        401:
+          $ref: "#/components/responses/UnauthorizedError"
+        404:
+          $ref: "#/components/responses/NotFoundError"
+      security:
+        - amazonCognito: []
+      tags:
+        - Tweet
+    post:
+      summary: "Create a new tweet"
+      description: "Create a new tweet"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TweetCreation'
+      responses:
+        201:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        401:
+          $ref: "#/components/responses/UnauthorizedError"
+      security:
+        - amazonCognito: []
+      tags:
+        - Tweet
+  /tweets/{tweetId}:
+    get:
+      summary: "Retrieve a tweet"
+      description: "Retrieve information about a single tweet"
+      parameters:
+        - name: 'tweetId'
+          in: path
+          description: "Tweet's id"
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tweet'
+        401:
+          $ref: "#/components/responses/UnauthorizedError"
+        404:
+          $ref: "#/components/responses/NotFoundError"
+      security:
+        - amazonCognito: []
+      tags:
+        - Tweet
+    delete:
+      summary: "Delete a tweet"
+      description: "Delete an existing tweet"
+      parameters:
+        - name: 'tweetId'
+          in: path
+          description: "Tweet's id"
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tweet'
+        401:
+          $ref: "#/components/responses/UnauthorizedError"
+        404:
+          $ref: "#/components/responses/NotFoundError"
+      security:
+        - amazonCognito: []
+      tags:
+        - Tweet
+
+
+components:
+  securitySchemes:
+    amazonCognito:
+      type: apiKey
+      name: "Authorization"
+      in: "header"
+      x-amazon-apigateway-authtype: "cognito_user_pools"
+      x-amazon-apigateway-authorizer:
+        type: "cognito_user_pools"
+        providerARNs:
+          - "arn:aws:cognito-idp:eu-west-3:678142815614:userpool/eu-west-3_bC7QworgU"
+
+
+  responses:
+    UnauthorizedError:
+      description: Access token is missing or invalid
+    NotFoundError:
+      description: Data not found
+    cors:
+      description: "200 response"
+      headers:
+        Access-Control-Allow-Origin:
+          schema:
+            type: "string"
+        Access-Control-Allow-Methods:
+          schema:
+            type: "string"
+        Access-Control-Max-Age:
+          schema:
+            type: "string"
+        Access-Control-Allow-Headers:
+          schema:
+            type: "string"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Empty"
+
+
+  parameters:
+    userId:
+      description: "User's id"
+      in: path
+      name: userId
+      required: true
+      schema:
+        type: string
+
+  schemas:
+    Empty:
+      title: "Empty Schema"
+      type: "object"
+    List:
+      type: object
+      properties:
+        size:
+          type: integer
+          description: "Size of current result"
+          example: 5
+        total:
+          type: integer
+          description: "Total number of result in database"
+          example: 100
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "86173d9f-f7f4-4965-8e9d-f37783bf6fa7"
+        name:
+          type: string
+          example: "0ddlyoko"
+        picture:
+          type: string
+          format: uri
+          example: "https://cdn.anonymoose.com/u/86173d9f-f7f4-4965-8e9d-f37783bf6fa7.png"
+    UserList:
+      allOf:
+        - $ref: "#/components/schemas/List"
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                $ref: "#/components/schemas/User"
+    UserCreation:
+      allOf:
+        - $ref: "#/components/schemas/UserChangePassword"
+        - type: object
+          properties:
+            token:
+              type: string
+              example: "123456789abcdef"
+            name:
+              type: string
+              example: "0ddlyoko"
+            password:
+              type: string
+              example: "password"
+            password2:
+              type: string
+              example: "password"
+    UserTempCreation:
+      type: object
+      properties:
+        email:
+          type: string
+          example: "test@example.com"
+    UserChangePassword:
+      type: object
+      properties:
+        token:
+          type: string
+          example: "123456789abcdef"
+        password:
+          type: string
+          example: "password"
+        password2:
+          type: string
+          example: "password"
+    UserAskPasswordChange:
+      type: object
+      properties:
+        email:
+          type: string
+          example: test@test.com
+
+    BaseTweet:
+      type: object
+      properties:
+        title:
+          type: string
+          example: "Title of My First Tweet"
+        description:
+          type: string
+          example: "My First Tweet! WOW"
+        hidden:
+          type: boolean
+          example: false
+    Tweet:
+      allOf:
+        - $ref: "#/components/schemas/BaseTweet"
+        - type: object
+          properties:
+            creationDate:
+              type: integer
+              example: 1659296865210
+            author:
+              $ref: "#/components/schemas/User"
+    TweetList:
+      allOf:
+        - $ref: "#/components/schemas/List"
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                $ref: "#/components/schemas/Tweet"
+    TweetCreation:
+      allOf:
+        - $ref: "#/components/schemas/BaseTweet"
+
+externalDocs:
+  description: "Anonymoose"
+  url: "https://anonymoose.com"
