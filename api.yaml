@@ -9,7 +9,7 @@ info:
     url: "https://opensource.org/licenses/MIT"
 
 servers:
-  - url: https://api.anonymoose.com/v1
+  - url: https://8eu6juxcs5.execute-api.eu-west-3.amazonaws.com/Test
     description: TEST
 
 x-amazon-apigateway-request-validators:
@@ -30,6 +30,7 @@ paths:
       operationId: getUsers
       summary: "Retrieves users"
       description: "Retrieve users based on some condition"
+      x-amazon-apigateway-request-validator: params
       x-amazon-apigateway-integration:
         uri:
           Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetUsersFunction.Arn}/invocations
@@ -42,7 +43,6 @@ paths:
         - name: 'search'
           in: query
           description: "Search based on the name of the user"
-          required: true
           schema:
             type: string
         - name: 'limit'
@@ -61,8 +61,8 @@ paths:
           $ref: "#/components/responses/UnauthorizedError"
         404:
           $ref: "#/components/responses/NotFoundError"
-      security:
-        - amazonCognito: []
+#      security:
+#        - amazonCognito: []
       tags:
         - User
     post:
@@ -99,8 +99,8 @@ paths:
           $ref: "#/components/responses/UnauthorizedError"
         409:
           description: If a token has already been sent to this email last hour
-      security:
-        - amazonCognito: []
+#      security:
+#        - amazonCognito: []
       tags:
         - User
     options:
@@ -152,8 +152,8 @@ paths:
           $ref: "#/components/responses/UnauthorizedError"
         404:
           $ref: "#/components/responses/NotFoundError"
-      security:
-        - amazonCognito: []
+#      security:
+#        - amazonCognito: []
       tags:
         - User
     options:
@@ -211,8 +211,8 @@ paths:
           $ref: "#/components/responses/UnauthorizedError"
         404:
           $ref: "#/components/responses/NotFoundError"
-      security:
-        - amazonCognito: []
+#      security:
+#        - amazonCognito: []
       tags:
         - User
     options:
@@ -260,8 +260,8 @@ paths:
           $ref: "#/components/responses/UnauthorizedError"
         404:
           $ref: "#/components/responses/NotFoundError"
-      security:
-        - amazonCognito: []
+#      security:
+#        - amazonCognito: []
       tags:
         - User
     options:
@@ -311,8 +311,8 @@ paths:
           description: OK even if the target entity doesn't exist
         401:
           $ref: "#/components/responses/UnauthorizedError"
-      security:
-        - amazonCognito: []
+#      security:
+#        - amazonCognito: []
       tags:
         - User
     options:

@@ -17,8 +17,13 @@ const userToJson = user => {
 exports.getUsers = (event, ctx, callback) => {
     console.info('getUsers', 'received: ', event);
 
+    let limit = 20;
+    if (event.queryStringParameters !== undefined)
+        limit = Math.min(limit, Math.max(0, event.queryStringParameters.limit)) || limit;
+
     db.scan({
         TableName: TABLE_USER,
+        Limit: limit,
     })
         .promise()
         .then(data => {
@@ -34,7 +39,7 @@ exports.getUsers = (event, ctx, callback) => {
 exports.getUser = (event, ctx, callback) => {
     console.info('getUser', 'received: ', event);
 
-    const id = event.pathParameters.id;
+    const id = event.pathParameters.userId;
     // This should be an uuid
     if (!isUuid(id)) {
         callback(null, common.makeErrorRequest(400, "Please enter a valid uuid"));
@@ -53,9 +58,7 @@ exports.getUser = (event, ctx, callback) => {
                 return common.makeErrorRequest(404, "User not found");
             return common.makeRequest(200, userToJson(data.Item));
         })
-        .catch(ex => {
-            return common.makeServerErrorRequest(ex, "exports.getOne")
-        })
+        .catch(ex => common.makeServerErrorRequest(ex, "exports.getOne"))
         .then(data => callback(null, data));
 };
 
