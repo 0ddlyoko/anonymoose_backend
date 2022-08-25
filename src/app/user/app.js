@@ -18,7 +18,7 @@ exports.getUsers = (event, ctx, callback) => {
     console.info('getUsers', 'received: ', event);
 
     let limit = 20;
-    if (event.queryStringParameters !== undefined)
+    if (event.queryStringParameters)
         limit = Math.min(limit, Math.max(0, event.queryStringParameters.limit)) || limit;
 
     db.scan({

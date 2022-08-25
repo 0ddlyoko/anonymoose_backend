@@ -61,8 +61,8 @@ paths:
           $ref: "#/components/responses/UnauthorizedError"
         404:
           $ref: "#/components/responses/NotFoundError"
-#      security:
-#        - amazonCognito: []
+      security:
+        - amazonCognito: []
       tags:
         - User
     post:
@@ -99,8 +99,8 @@ paths:
           $ref: "#/components/responses/UnauthorizedError"
         409:
           description: If a token has already been sent to this email last hour
-#      security:
-#        - amazonCognito: []
+      security:
+        - amazonCognito: []
       tags:
         - User
     options:
@@ -152,8 +152,8 @@ paths:
           $ref: "#/components/responses/UnauthorizedError"
         404:
           $ref: "#/components/responses/NotFoundError"
-#      security:
-#        - amazonCognito: []
+      security:
+        - amazonCognito: []
       tags:
         - User
     options:
@@ -211,8 +211,8 @@ paths:
           $ref: "#/components/responses/UnauthorizedError"
         404:
           $ref: "#/components/responses/NotFoundError"
-#      security:
-#        - amazonCognito: []
+      security:
+        - amazonCognito: []
       tags:
         - User
     options:
@@ -260,8 +260,8 @@ paths:
           $ref: "#/components/responses/UnauthorizedError"
         404:
           $ref: "#/components/responses/NotFoundError"
-#      security:
-#        - amazonCognito: []
+      security:
+        - amazonCognito: []
       tags:
         - User
     options:
@@ -311,8 +311,8 @@ paths:
           description: OK even if the target entity doesn't exist
         401:
           $ref: "#/components/responses/UnauthorizedError"
-#      security:
-#        - amazonCognito: []
+      security:
+        - amazonCognito: []
       tags:
         - User
     options:
@@ -349,7 +349,7 @@ components:
       x-amazon-apigateway-authorizer:
         type: "cognito_user_pools"
         providerARNs:
-          - "arn:aws:cognito-idp:eu-west-3:678142815614:userpool/eu-west-3_bC7QworgU"
+          - Fn::GetAtt: CognitoUserPool.Arn
 
 
   responses:
