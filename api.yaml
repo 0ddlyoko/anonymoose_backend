@@ -56,7 +56,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserList'
+                $ref: "#/components/schemas/UserList"
         401:
           $ref: "#/components/responses/UnauthorizedError"
         404:
@@ -83,17 +83,14 @@ paths:
         content:
           application/json:
             schema:
-              anyOf:
-                - $ref: '#/components/schemas/UserCreation'
+              $ref: "#/components/schemas/UserCreation"
       responses:
         201:
           description: OK
           content:
             application/json:
               schema:
-                anyOf:
-                  - $ref: '#/components/schemas/User'
-                  - $ref: '#/components/schemas/Empty'
+                $ref: "#/components/schemas/User"
         401:
           $ref: "#/components/responses/UnauthorizedError"
       security:
@@ -103,11 +100,11 @@ paths:
     options:
       responses:
         200:
-          $ref: '#/components/responses/cors'
+          $ref: "#/components/responses/cors"
         400:
-          $ref: '#/components/responses/cors'
+          $ref: "#/components/responses/cors"
         500:
-          $ref: '#/components/responses/cors'
+          $ref: "#/components/responses/cors"
       x-amazon-apigateway-integration:
         responses:
           default:
@@ -137,14 +134,14 @@ paths:
           Fn::GetAtt: APIGatewayInvokeLambdaRole.Arn
         type: "aws_proxy"
       parameters:
-        - $ref: '#/components/parameters/userId'
+        - $ref: "#/components/parameters/userId"
       responses:
         200:
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: "#/components/schemas/User"
         401:
           $ref: "#/components/responses/UnauthorizedError"
         404:
@@ -156,11 +153,11 @@ paths:
     options:
       responses:
         200:
-          $ref: '#/components/responses/cors'
+          $ref: "#/components/responses/cors"
         400:
-          $ref: '#/components/responses/cors'
+          $ref: "#/components/responses/cors"
         500:
-          $ref: '#/components/responses/cors'
+          $ref: "#/components/responses/cors"
       x-amazon-apigateway-integration:
         responses:
           default:
@@ -195,7 +192,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Profile'
+                $ref: "#/components/schemas/User"
         400:
           $ref: "#/components/responses/InvalidAuthorizerError"
         401:
@@ -224,15 +221,14 @@ paths:
         content:
           application/json:
             schema:
-              anyOf:
-                - $ref: '#/components/schemas/ProfileCreation'
+              $ref: "#/components/schemas/Empty"
       responses:
         201:
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Profile'
+                $ref: "#/components/schemas/UserCreation"
         401:
           $ref: "#/components/responses/UnauthorizedError"
       security:
@@ -242,11 +238,11 @@ paths:
     options:
       responses:
         200:
-          $ref: '#/components/responses/cors'
+          $ref: "#/components/responses/cors"
         400:
-          $ref: '#/components/responses/cors'
+          $ref: "#/components/responses/cors"
         500:
-          $ref: '#/components/responses/cors'
+          $ref: "#/components/responses/cors"
       x-amazon-apigateway-integration:
         responses:
           default:
@@ -361,20 +357,6 @@ components:
         name:
           type: string
           example: "0ddlyoko"
-
-    # Profile
-    Profile:
-      allOf:
-        - $ref: "#/components/schemas/User"
-        - type: object
-          properties:
-            test:
-              type: string
-    ProfileCreation:
-      type: object
-      properties:
-        test:
-          type: string
 
     # Tweets
     BaseTweet:
