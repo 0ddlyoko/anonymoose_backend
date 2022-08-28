@@ -85,7 +85,6 @@ paths:
             schema:
               anyOf:
                 - $ref: '#/components/schemas/UserCreation'
-                - $ref: '#/components/schemas/UserTempCreation'
       responses:
         201:
           description: OK
@@ -97,8 +96,6 @@ paths:
                   - $ref: '#/components/schemas/Empty'
         401:
           $ref: "#/components/responses/UnauthorizedError"
-        409:
-          description: If a token has already been sent to this email last hour
       security:
         - amazonCognito: []
       tags:
@@ -178,165 +175,6 @@ paths:
         requestTemplates:
           application/json: "{ \"statusCode\": 200 }"
         type: "mock"
-  /users/{userId}/password:
-    post:
-      operationId: postUserPassword
-      summary: "Change password"
-      description: "Change the password of the user"
-      x-amazon-apigateway-request-validator: all
-      x-amazon-apigateway-integration:
-        uri:
-          Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PostUserPasswordFunction.Arn}/invocations
-        httpMethod: "POST"
-        timeoutInMillis: 4000
-        credentials:
-          Fn::GetAtt: APIGatewayInvokeLambdaRole.Arn
-        type: "aws_proxy"
-      parameters:
-        - $ref: '#/components/parameters/userId'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UserChangePassword'
-      responses:
-        200:
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
-        401:
-          $ref: "#/components/responses/UnauthorizedError"
-        404:
-          $ref: "#/components/responses/NotFoundError"
-      security:
-        - amazonCognito: []
-      tags:
-        - User
-    options:
-      responses:
-        200:
-          $ref: '#/components/responses/cors'
-        400:
-          $ref: '#/components/responses/cors'
-        500:
-          $ref: '#/components/responses/cors'
-      x-amazon-apigateway-integration:
-        responses:
-          default:
-            statusCode: "200"
-            responseParameters:
-              method.response.header.Access-Control-Max-Age: "'7200'"
-              method.response.header.Access-Control-Allow-Methods: "'OPTIONS,HEAD,GET,POST,PUT,DELETE'"
-              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-              method.response.header.Access-Control-Allow-Origin: "'*'"
-        passthroughBehavior: "when_no_match"
-        timeoutInMillis: 29000
-        requestTemplates:
-          application/json: "{ \"statusCode\": 200 }"
-        type: "mock"
-  /users/{userId}/reset_password:
-    post:
-      operationId: postUserResetPassword
-      summary: "Ask Change password"
-      description: "Ask to change the password of the user"
-      x-amazon-apigateway-request-validator: all
-      x-amazon-apigateway-integration:
-        uri:
-          Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PostUserResetPasswordFunction.Arn}/invocations
-        httpMethod: "POST"
-        timeoutInMillis: 4000
-        credentials:
-          Fn::GetAtt: APIGatewayInvokeLambdaRole.Arn
-        type: "aws_proxy"
-      parameters:
-        - $ref: '#/components/parameters/userId'
-      responses:
-        200:
-          description: OK
-        401:
-          $ref: "#/components/responses/UnauthorizedError"
-        404:
-          $ref: "#/components/responses/NotFoundError"
-      security:
-        - amazonCognito: []
-      tags:
-        - User
-    options:
-      responses:
-        200:
-          $ref: '#/components/responses/cors'
-        400:
-          $ref: '#/components/responses/cors'
-        500:
-          $ref: '#/components/responses/cors'
-      x-amazon-apigateway-integration:
-        responses:
-          default:
-            statusCode: "200"
-            responseParameters:
-              method.response.header.Access-Control-Max-Age: "'7200'"
-              method.response.header.Access-Control-Allow-Methods: "'OPTIONS,HEAD,GET,POST,PUT,DELETE'"
-              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-              method.response.header.Access-Control-Allow-Origin: "'*'"
-        passthroughBehavior: "when_no_match"
-        timeoutInMillis: 29000
-        requestTemplates:
-          application/json: "{ \"statusCode\": 200 }"
-        type: "mock"
-  /users/reset_password:
-    post:
-      operationId: postResetPassword
-      summary: "Ask to Reset password"
-      description: "Ask to reset the password of a user"
-      x-amazon-apigateway-request-validator: all
-      x-amazon-apigateway-integration:
-        uri:
-          Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PostResetPasswordFunction.Arn}/invocations
-        httpMethod: "POST"
-        timeoutInMillis: 4000
-        credentials:
-          Fn::GetAtt: APIGatewayInvokeLambdaRole.Arn
-        type: "aws_proxy"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UserAskPasswordChange'
-      responses:
-        200:
-          description: OK even if the target entity doesn't exist
-        401:
-          $ref: "#/components/responses/UnauthorizedError"
-      security:
-        - amazonCognito: []
-      tags:
-        - User
-    options:
-      responses:
-        200:
-          $ref: '#/components/responses/cors'
-        400:
-          $ref: '#/components/responses/cors'
-        500:
-          $ref: '#/components/responses/cors'
-      x-amazon-apigateway-integration:
-        responses:
-          default:
-            statusCode: "200"
-            responseParameters:
-              method.response.header.Access-Control-Max-Age: "'7200'"
-              method.response.header.Access-Control-Allow-Methods: "'OPTIONS,HEAD,GET,POST,PUT,DELETE'"
-              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-              method.response.header.Access-Control-Allow-Origin: "'*'"
-        passthroughBehavior: "when_no_match"
-        timeoutInMillis: 29000
-        requestTemplates:
-          application/json: "{ \"statusCode\": 200 }"
-        type: "mock"
 
 
 components:
@@ -349,7 +187,7 @@ components:
       x-amazon-apigateway-authorizer:
         type: "cognito_user_pools"
         providerARNs:
-          - Fn::GetAtt: CognitoUserPool.Arn
+          - "arn:aws:cognito-idp:eu-west-3:260316834066:userpool/eu-west-3_1EskCYThl"
 
 
   responses:
@@ -403,6 +241,7 @@ components:
           description: "Total number of result in database"
           example: 100
 
+    # Users
     User:
       type: object
       properties:
@@ -426,47 +265,16 @@ components:
               items:
                 $ref: "#/components/schemas/User"
     UserCreation:
-      allOf:
-        - $ref: "#/components/schemas/UserChangePassword"
-        - type: object
-          properties:
-            token:
-              type: string
-              example: "123456789abcdef"
-            name:
-              type: string
-              example: "0ddlyoko"
-            password:
-              type: string
-              example: "password"
-            password2:
-              type: string
-              example: "password"
-    UserTempCreation:
       type: object
       properties:
         email:
-          type: string
+          type: String
           example: "test@example.com"
-    UserChangePassword:
-      type: object
-      properties:
-        token:
+        name:
           type: string
-          example: "123456789abcdef"
-        password:
-          type: string
-          example: "password"
-        password2:
-          type: string
-          example: "password"
-    UserAskPasswordChange:
-      type: object
-      properties:
-        email:
-          type: string
-          example: test@test.com
+          example: "0ddlyoko"
 
+    # Tweets
     BaseTweet:
       type: object
       properties:

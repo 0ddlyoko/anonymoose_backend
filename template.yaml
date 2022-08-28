@@ -75,36 +75,6 @@ Resources:
                 Resource:
                   - '*'
 
-  # Cognito
-  CognitoUserPool:
-    Type: AWS::Cognito::UserPool
-    Properties:
-      UserPoolName: anonymoose-userpool
-      AdminCreateUserConfig:
-        AllowAdminCreateUserOnly: false
-      AliasAttributes:
-        - email
-        - preferred_username
-      AutoVerifiedAttributes:
-        - email
-      EnabledMfas:
-        - SOFTWARE_TOKEN_MFA
-      MfaConfiguration: OPTIONAL
-      Policies:
-        PasswordPolicy:
-          MinimumLength: 8
-      UserAttributeUpdateSettings:
-        AttributesRequireVerificationBeforeUpdate:
-          - email
-      VerificationMessageTemplate:
-        DefaultEmailOption: "CONFIRM_WITH_LINK"
-
-  CognitoUserPoolDomain:
-    Type: AWS::Cognito::UserPoolDomain
-    Properties:
-      Domain: anonymooose
-      UserPoolId: !Ref CognitoUserPool
-
 
   # Lambda Functions
   GetUsersFunction:
@@ -148,49 +118,6 @@ Resources:
       Environment:
         Variables:
           TABLE_USER: !Ref UserTable
-
-  PostUserPasswordFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      Description: Edit a user's password
-      FunctionName: Anonymoose-Test-postUserPassword
-      Policies:
-        - DynamoDBCrudPolicy:
-            TableName: !Ref UserTable
-      CodeUri: src/app/user
-      Handler: password.postUserPassword
-      Environment:
-        Variables:
-          TABLE_USER: !Ref UserTable
-
-  PostUserResetPasswordFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      Description: Ask Change password
-      FunctionName: Anonymoose-Test-postUserResetPassword
-      Policies:
-        - DynamoDBCrudPolicy:
-            TableName: !Ref UserTable
-      CodeUri: src/app/user
-      Handler: password.postUserResetPassword
-      Environment:
-        Variables:
-          TABLE_USER: !Ref UserTable
-
-  PostResetPasswordFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      Description: Ask to Reset password
-      FunctionName: Anonymoose-Test-postResetPassword
-      Policies:
-        - DynamoDBCrudPolicy:
-            TableName: !Ref UserTable
-      CodeUri: src/app/user
-      Handler: password.postResetPassword
-      Environment:
-        Variables:
-          TABLE_USER: !Ref UserTable
-
 
   # Simple syntax to create a DynamoDB table with a single attribute primary key, more in
   # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlesssimpletable
