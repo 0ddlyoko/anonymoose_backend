@@ -175,6 +175,92 @@ paths:
         requestTemplates:
           application/json: "{ \"statusCode\": 200 }"
         type: "mock"
+  /profile:
+    get:
+      operationId: getProfile
+      summary: "Get current profile information"
+      description: "Retrieve current profile information based on given ID Token"
+      x-amazon-apigateway-request-validator: params
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetProfileFunction.Arn}/invocations
+        httpMethod: "POST"
+        timeoutInMillis: 4000
+        credentials:
+          Fn::GetAtt: APIGatewayInvokeLambdaRole.Arn
+        type: "aws_proxy"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+        400:
+          $ref: "#/components/responses/InvalidAuthorizerError"
+        401:
+          $ref: "#/components/responses/UnauthorizedError"
+        404:
+          $ref: "#/components/responses/NotFoundError"
+      security:
+        - amazonCognito: []
+      tags:
+        - Profile
+    post:
+      operationId: postProfile
+      summary: "Create a new profile"
+      description: "Create a new profile based on given ID Token"
+      x-amazon-apigateway-request-validator: all
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PostProfileFunction.Arn}/invocations
+        httpMethod: "POST"
+        timeoutInMillis: 4000
+        credentials:
+          Fn::GetAtt: APIGatewayInvokeLambdaRole.Arn
+        type: "aws_proxy"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              anyOf:
+                - $ref: '#/components/schemas/ProfileCreation'
+      responses:
+        201:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+        401:
+          $ref: "#/components/responses/UnauthorizedError"
+      security:
+        - amazonCognito: []
+      tags:
+        - Profile
+    options:
+      responses:
+        200:
+          $ref: '#/components/responses/cors'
+        400:
+          $ref: '#/components/responses/cors'
+        500:
+          $ref: '#/components/responses/cors'
+      x-amazon-apigateway-integration:
+        responses:
+          default:
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Max-Age: "'7200'"
+              method.response.header.Access-Control-Allow-Methods: "'OPTIONS,HEAD,GET,POST,PUT,DELETE'"
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+        passthroughBehavior: "when_no_match"
+        timeoutInMillis: 29000
+        requestTemplates:
+          application/json: "{ \"statusCode\": 200 }"
+        type: "mock"
 
 
 components:
@@ -191,6 +277,8 @@ components:
 
 
   responses:
+    InvalidAuthorizerError:
+      description: Invalid ID token
     UnauthorizedError:
       description: Access token is missing or invalid
     NotFoundError:
@@ -273,6 +361,20 @@ components:
         name:
           type: string
           example: "0ddlyoko"
+
+    # Profile
+    Profile:
+      allOf:
+        - $ref: "#/components/schemas/User"
+        - type: object
+          properties:
+            test:
+              type: string
+    ProfileCreation:
+      type: object
+      properties:
+        test:
+          type: string
 
     # Tweets
     BaseTweet:

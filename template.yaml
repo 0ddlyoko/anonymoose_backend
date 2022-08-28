@@ -119,6 +119,36 @@ Resources:
         Variables:
           TABLE_USER: !Ref UserTable
 
+  GetProfileFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: Retrieve current profile information
+      FunctionName: Anonymoose-Test-getProfile
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UserTable
+      CodeUri: src/app/profile
+      Handler: app.getProfile
+      Environment:
+        Variables:
+          TABLE_USER: !Ref UserTable
+          TABLE_USER_EMAIL_IDX: EmailIndex
+
+  PostProfileFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: Retrieve current profile information
+      FunctionName: Anonymoose-Test-postProfile
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UserTable
+      CodeUri: src/app/profile
+      Handler: app.postProfile
+      Environment:
+        Variables:
+          TABLE_USER: !Ref UserTable
+          TABLE_USER_EMAIL_IDX: EmailIndex
+
   # Simple syntax to create a DynamoDB table with a single attribute primary key, more in
   # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlesssimpletable
 
