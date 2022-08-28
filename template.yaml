@@ -105,20 +105,6 @@ Resources:
         Variables:
           TABLE_USER: !Ref UserTable
 
-  PostUserFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      Description: Create a new user
-      FunctionName: Anonymoose-Test-postUser
-      Policies:
-        - DynamoDBCrudPolicy:
-            TableName: !Ref UserTable
-      CodeUri: src/app/user
-      Handler: app.postUser
-      Environment:
-        Variables:
-          TABLE_USER: !Ref UserTable
-
   GetProfileFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -133,6 +119,7 @@ Resources:
         Variables:
           TABLE_USER: !Ref UserTable
           TABLE_USER_EMAIL_IDX: EmailIndex
+          TABLE_USER_NAME_IDX: NameIndex
 
   PostProfileFunction:
     Type: AWS::Serverless::Function
@@ -148,6 +135,7 @@ Resources:
         Variables:
           TABLE_USER: !Ref UserTable
           TABLE_USER_EMAIL_IDX: EmailIndex
+          TABLE_USER_NAME_IDX: NameIndex
 
   # Simple syntax to create a DynamoDB table with a single attribute primary key, more in
   # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlesssimpletable

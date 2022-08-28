@@ -65,38 +65,6 @@ paths:
         - amazonCognito: []
       tags:
         - User
-    post:
-      operationId: postUser
-      summary: "Create a new user or ask the creation of a new user"
-      description: "Create a new user or ask the creation of a new user"
-      x-amazon-apigateway-request-validator: all
-      x-amazon-apigateway-integration:
-        uri:
-          Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PostUserFunction.Arn}/invocations
-        httpMethod: "POST"
-        timeoutInMillis: 4000
-        credentials:
-          Fn::GetAtt: APIGatewayInvokeLambdaRole.Arn
-        type: "aws_proxy"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/UserCreation"
-      responses:
-        201:
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/User"
-        401:
-          $ref: "#/components/responses/UnauthorizedError"
-      security:
-        - amazonCognito: []
-      tags:
-        - User
     options:
       responses:
         200:
@@ -228,7 +196,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/UserCreation"
+                $ref: "#/components/schemas/User"
         401:
           $ref: "#/components/responses/UnauthorizedError"
       security:
@@ -348,16 +316,6 @@ components:
               type: array
               items:
                 $ref: "#/components/schemas/User"
-    UserCreation:
-      type: object
-      properties:
-        email:
-          type: String
-          example: "test@example.com"
-        name:
-          type: string
-          example: "0ddlyoko"
-
     # Tweets
     BaseTweet:
       type: object
