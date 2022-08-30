@@ -86,7 +86,7 @@ Resources:
         - DynamoDBCrudPolicy:
             TableName: !Ref UserTable
       CodeUri: src/app/user
-      Handler: app.getUsers
+      Handler: user.getUsers
       Environment:
         Variables:
           TABLE_USER: !Ref UserTable
@@ -100,7 +100,7 @@ Resources:
         - DynamoDBCrudPolicy:
             TableName: !Ref UserTable
       CodeUri: src/app/user
-      Handler: app.getUser
+      Handler: user.getUser
       Environment:
         Variables:
           TABLE_USER: !Ref UserTable
@@ -114,7 +114,7 @@ Resources:
         - DynamoDBCrudPolicy:
             TableName: !Ref UserTable
       CodeUri: src/app/profile
-      Handler: app.getProfile
+      Handler: profile.getProfile
       Environment:
         Variables:
           TABLE_USER: !Ref UserTable
@@ -130,7 +130,7 @@ Resources:
         - DynamoDBCrudPolicy:
             TableName: !Ref UserTable
       CodeUri: src/app/profile
-      Handler: app.postProfile
+      Handler: profile.postProfile
       Environment:
         Variables:
           TABLE_USER: !Ref UserTable
