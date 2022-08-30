@@ -1,0 +1,357 @@
+openapi: 3.0.0
+info:
+  title: "Anonymoose API"
+  description: "Official Anonymoose API."
+  version: "1.0.0"
+  termsOfService: "https://swagger.io/terms/"
+  license:
+    name: "MIT"
+    url: "https://opensource.org/licenses/MIT"
+
+servers:
+  - url: https://8eu6juxcs5.execute-api.eu-west-3.amazonaws.com/Test
+    description: TEST
+
+x-amazon-apigateway-request-validators:
+  all:
+    validateRequestBody: true
+    validateRequestParameters: true
+  params:
+    validateRequestBody: false
+    validateRequestParameters: true
+  body:
+    validateRequestBody: true
+    validateRequestParameters: false
+
+
+paths:
+  /users:
+    get:
+      operationId: getUsers
+      summary: "Retrieves users"
+      description: "Retrieve users based on some condition"
+      x-amazon-apigateway-request-validator: params
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetUsersFunction.Arn}/invocations
+        httpMethod: "POST"
+        timeoutInMillis: 4000
+        credentials:
+          Fn::GetAtt: APIGatewayInvokeLambdaRole.Arn
+        type: "aws_proxy"
+      parameters:
+        - name: 'search'
+          in: query
+          description: "Search based on the name of the user"
+          schema:
+            type: string
+        - name: 'limit'
+          in: query
+          description: "Limit the amount of result. Between 1 and 100. Default = 10"
+          schema:
+            type: integer
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserList"
+        401:
+          $ref: "#/components/responses/UnauthorizedError"
+        404:
+          $ref: "#/components/responses/NotFoundError"
+      security:
+        - amazonCognito: []
+      tags:
+        - User
+    options:
+      responses:
+        200:
+          $ref: "#/components/responses/cors"
+        400:
+          $ref: "#/components/responses/cors"
+        500:
+          $ref: "#/components/responses/cors"
+      x-amazon-apigateway-integration:
+        responses:
+          default:
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Max-Age: "'7200'"
+              method.response.header.Access-Control-Allow-Methods: "'OPTIONS,HEAD,GET,POST,PUT,DELETE'"
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+        passthroughBehavior: "when_no_match"
+        timeoutInMillis: 29000
+        requestTemplates:
+          application/json: "{ \"statusCode\": 200 }"
+        type: "mock"
+  /users/{userId}:
+    get:
+      operationId: getUser
+      summary: "Retrieve a user"
+      description: "Retrieve information about a single user"
+      x-amazon-apigateway-request-validator: params
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetUserFunction.Arn}/invocations
+        httpMethod: "POST"
+        timeoutInMillis: 4000
+        credentials:
+          Fn::GetAtt: APIGatewayInvokeLambdaRole.Arn
+        type: "aws_proxy"
+      parameters:
+        - $ref: "#/components/parameters/userId"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        401:
+          $ref: "#/components/responses/UnauthorizedError"
+        404:
+          $ref: "#/components/responses/NotFoundError"
+      security:
+        - amazonCognito: []
+      tags:
+        - User
+    options:
+      responses:
+        200:
+          $ref: "#/components/responses/cors"
+        400:
+          $ref: "#/components/responses/cors"
+        500:
+          $ref: "#/components/responses/cors"
+      x-amazon-apigateway-integration:
+        responses:
+          default:
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Max-Age: "'7200'"
+              method.response.header.Access-Control-Allow-Methods: "'OPTIONS,HEAD,GET,POST,PUT,DELETE'"
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+        passthroughBehavior: "when_no_match"
+        timeoutInMillis: 29000
+        requestTemplates:
+          application/json: "{ \"statusCode\": 200 }"
+        type: "mock"
+  /profile:
+    get:
+      operationId: getProfile
+      summary: "Get current profile information"
+      description: "Retrieve current profile information based on given ID Token"
+      x-amazon-apigateway-request-validator: params
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetProfileFunction.Arn}/invocations
+        httpMethod: "POST"
+        timeoutInMillis: 4000
+        credentials:
+          Fn::GetAtt: APIGatewayInvokeLambdaRole.Arn
+        type: "aws_proxy"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        400:
+          $ref: "#/components/responses/InvalidAuthorizerError"
+        401:
+          $ref: "#/components/responses/UnauthorizedError"
+        404:
+          $ref: "#/components/responses/NotFoundError"
+      security:
+        - amazonCognito: []
+      tags:
+        - Profile
+    post:
+      operationId: postProfile
+      summary: "Create a new profile"
+      description: "Create a new profile based on given ID Token"
+      x-amazon-apigateway-request-validator: all
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PostProfileFunction.Arn}/invocations
+        httpMethod: "POST"
+        timeoutInMillis: 4000
+        credentials:
+          Fn::GetAtt: APIGatewayInvokeLambdaRole.Arn
+        type: "aws_proxy"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Empty"
+      responses:
+        201:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        401:
+          $ref: "#/components/responses/UnauthorizedError"
+      security:
+        - amazonCognito: []
+      tags:
+        - Profile
+    options:
+      responses:
+        200:
+          $ref: "#/components/responses/cors"
+        400:
+          $ref: "#/components/responses/cors"
+        500:
+          $ref: "#/components/responses/cors"
+      x-amazon-apigateway-integration:
+        responses:
+          default:
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Max-Age: "'7200'"
+              method.response.header.Access-Control-Allow-Methods: "'OPTIONS,HEAD,GET,POST,PUT,DELETE'"
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+        passthroughBehavior: "when_no_match"
+        timeoutInMillis: 29000
+        requestTemplates:
+          application/json: "{ \"statusCode\": 200 }"
+        type: "mock"
+
+
+components:
+  securitySchemes:
+    amazonCognito:
+      type: "apiKey"
+      name: "Authorization"
+      in: "header"
+      x-amazon-apigateway-authtype: "cognito_user_pools"
+      x-amazon-apigateway-authorizer:
+        type: "cognito_user_pools"
+        providerARNs:
+          - "arn:aws:cognito-idp:eu-west-3:260316834066:userpool/eu-west-3_1EskCYThl"
+
+
+  responses:
+    InvalidAuthorizerError:
+      description: Invalid ID token
+    UnauthorizedError:
+      description: Access token is missing or invalid
+    NotFoundError:
+      description: Data not found
+    cors:
+      description: "200 response"
+      headers:
+        Access-Control-Allow-Origin:
+          schema:
+            type: "string"
+        Access-Control-Allow-Methods:
+          schema:
+            type: "string"
+        Access-Control-Max-Age:
+          schema:
+            type: "string"
+        Access-Control-Allow-Headers:
+          schema:
+            type: "string"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Empty"
+
+
+  parameters:
+    userId:
+      description: "User's id"
+      in: path
+      name: userId
+      required: true
+      schema:
+        type: string
+
+  schemas:
+    Empty:
+      title: "Empty Schema"
+      type: "object"
+    List:
+      type: object
+      properties:
+        size:
+          type: integer
+          description: "Size of current result"
+          example: 5
+        total:
+          type: integer
+          description: "Total number of result in database"
+          example: 100
+
+    # Users
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "86173d9f-f7f4-4965-8e9d-f37783bf6fa7"
+        name:
+          type: string
+          example: "0ddlyoko"
+        picture:
+          type: string
+          format: uri
+          example: "https://cdn.anonymoose.com/u/86173d9f-f7f4-4965-8e9d-f37783bf6fa7.png"
+    UserList:
+      allOf:
+        - $ref: "#/components/schemas/List"
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                $ref: "#/components/schemas/User"
+    # Tweets
+    BaseTweet:
+      type: object
+      properties:
+        title:
+          type: string
+          example: "Title of My First Tweet"
+        description:
+          type: string
+          example: "My First Tweet! WOW"
+        hidden:
+          type: boolean
+          example: false
+    Tweet:
+      allOf:
+        - $ref: "#/components/schemas/BaseTweet"
+        - type: object
+          properties:
+            creationDate:
+              type: integer
+              example: 1659296865210
+            author:
+              $ref: "#/components/schemas/User"
+    TweetList:
+      allOf:
+        - $ref: "#/components/schemas/List"
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                $ref: "#/components/schemas/Tweet"
+    TweetCreation:
+      allOf:
+        - $ref: "#/components/schemas/BaseTweet"
+
+externalDocs:
+  description: "Anonymoose"
+  url: "https://anonymoose.com"

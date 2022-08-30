@@ -7,10 +7,22 @@ AWSTemplateFormatVersion: 2010-09-09
 Description: >-
   backend
 
-# Transform section specifies one or more macros that AWS CloudFormation uses to process your template
-# https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/transform-section-structure.html
-Transform:
-- AWS::Serverless-2016-10-31
+Transform: AWS::Serverless-2016-10-31
+
+Globals:
+  Function:
+    Timeout: 4
+    Runtime: nodejs16.x
+    Architectures:
+      - x86_64
+    MemorySize: 256
+    Layers:
+      - Ref: CommonLayer
+  Api:
+    OpenApiVersion: 3.0.0
+    Cors:
+      AllowMethods: "'GET'"
+      AllowOrigin: "'*'"
 
 # Resources declares the AWS resources that you want to include in the stack
 # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/resources-section-structure.html
@@ -18,99 +30,147 @@ Resources:
   # Each Lambda function is defined by properties:
   # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
 
-  # This is a Lambda function config associated with the source code: get-all-items.js
-  getAllItemsFunction:
-    Type: AWS::Serverless::Function
+  CommonLayer:
+    Type: AWS::Serverless::LayerVersion
     Properties:
-      Handler: src/handlers/get-all-items.getAllItemsHandler
-      Runtime: nodejs16.x
-      Architectures:
-        - x86_64
-      MemorySize: 128
-      Timeout: 100
-      Description: A simple example includes a HTTP get method to get all items from a DynamoDB table.
-      Policies:
-        # Give Create/Read/Update/Delete Permissions to the SampleTable
-        - DynamoDBCrudPolicy:
-            TableName: !Ref SampleTable
-      Environment:
-        Variables:
-          # Make table name accessible as environment variable from function code during execution
-          SAMPLE_TABLE: !Ref SampleTable
-      Events:
-        Api:
-          Type: Api
-          Properties:
-            Path: /
-            Method: GET
-  # Each Lambda function is defined by properties:
-  # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+      ContentUri: src/common
+      CompatibleRuntimes:
+        - nodejs16.x
 
-  # This is a Lambda function config associated with the source code: get-by-id.js
-  getByIdFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      Handler: src/handlers/get-by-id.getByIdHandler
-      Runtime: nodejs16.x
-      Architectures:
-        - x86_64
-      MemorySize: 128
-      Timeout: 100
-      Description: A simple example includes a HTTP get method to get one item by id from a DynamoDB table.
-      Policies:
-        # Give Create/Read/Update/Delete Permissions to the SampleTable
-        - DynamoDBCrudPolicy:
-            TableName: !Ref SampleTable
-      Environment:
-        Variables:
-          # Make table name accessible as environment variable from function code during execution
-          SAMPLE_TABLE: !Ref SampleTable
-      Events:
-        Api:
-          Type: Api
-          Properties:
-            Path: /{id}
-            Method: GET
-  # Each Lambda function is defined by properties:
-  # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
 
-  # This is a Lambda function config associated with the source code: put-item.js
-  putItemFunction:
+  # API
+  WebEndpoint:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: Anonymoose-Test-API
+      EndpointConfiguration:
+        Type: EDGE
+      StageName: Test
+      DefinitionBody:
+        Fn::Transform:
+          Name: AWS::Include
+          Parameters:
+            Location: api.yaml
+
+
+  # IAM
+  APIGatewayInvokeLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service: "apigateway.amazonaws.com"
+            Action: "sts:AssumeRole"
+      Path: /
+      Policies:
+        - PolicyName: ApiGateway
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action:
+                  - lambda:InvokeFunction
+                Resource:
+                  - '*'
+
+
+  # Lambda Functions
+  GetUsersFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: src/handlers/put-item.putItemHandler
-      Runtime: nodejs16.x
-      Architectures:
-        - x86_64
-      MemorySize: 128
-      Timeout: 100
-      Description: A simple example includes a HTTP post method to add one item to a DynamoDB table.
+      Description: Retrieves all users
+      FunctionName: Anonymoose-Test-getUsers
       Policies:
-        # Give Create/Read/Update/Delete Permissions to the SampleTable
         - DynamoDBCrudPolicy:
-            TableName: !Ref SampleTable
+            TableName: !Ref UserTable
+      CodeUri: src/app/user
+      Handler: app.getUsers
       Environment:
         Variables:
-          # Make table name accessible as environment variable from function code during execution
-          SAMPLE_TABLE: !Ref SampleTable
-      Events:
-        Api:
-          Type: Api
-          Properties:
-            Path: /
-            Method: POST
+          TABLE_USER: !Ref UserTable
+
+  GetUserFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: Retrieve a user
+      FunctionName: Anonymoose-Test-getUser
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UserTable
+      CodeUri: src/app/user
+      Handler: app.getUser
+      Environment:
+        Variables:
+          TABLE_USER: !Ref UserTable
+
+  GetProfileFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: Retrieve current profile information
+      FunctionName: Anonymoose-Test-getProfile
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UserTable
+      CodeUri: src/app/profile
+      Handler: app.getProfile
+      Environment:
+        Variables:
+          TABLE_USER: !Ref UserTable
+          TABLE_USER_EMAIL_IDX: EmailIndex
+          TABLE_USER_NAME_IDX: NameIndex
+
+  PostProfileFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: Retrieve current profile information
+      FunctionName: Anonymoose-Test-postProfile
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UserTable
+      CodeUri: src/app/profile
+      Handler: app.postProfile
+      Environment:
+        Variables:
+          TABLE_USER: !Ref UserTable
+          TABLE_USER_EMAIL_IDX: EmailIndex
+          TABLE_USER_NAME_IDX: NameIndex
+
   # Simple syntax to create a DynamoDB table with a single attribute primary key, more in
   # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlesssimpletable
 
-  # DynamoDB table to store item: {id: &lt;ID&gt;, name: &lt;NAME&gt;}
-  SampleTable:
-    Type: AWS::Serverless::SimpleTable
+  UserTable:
+    Type: AWS::DynamoDB::Table
     Properties:
-      PrimaryKey:
-        Name: id
-        Type: String
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+        - AttributeName: name
+          AttributeType: S
+        - AttributeName: email
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: NameIndex
+          KeySchema:
+            - AttributeName: name
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+        - IndexName: EmailIndex
+          KeySchema:
+            - AttributeName: email
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+      TableName: User
+      BillingMode: PAY_PER_REQUEST
+
 
 Outputs:
   WebEndpoint:
-    Description: "API Gateway endpoint URL for Prod stage"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+    Description: "API Gateway endpoint URL for Test stage"
+    Value: !Sub "https://${WebEndpoint}.execute-api.${AWS::Region}.amazonaws.com/Test/"
