@@ -1,0 +1,5 @@
+name: "limit"
+in: query
+description: "Limit the amount of result. Between 1 and 100. Default = 10"
+schema:
+  type: integer

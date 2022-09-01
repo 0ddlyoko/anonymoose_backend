@@ -1,0 +1,6 @@
+description: "User"
+content:
+  application/json:
+    examples:
+      existingUser:
+        $ref: '../../examples/user/user.yml'

@@ -1,0 +1,11 @@
+# Profile
+Profile:
+  $ref: './profile/profile.yml'
+
+# User
+EmptyUserList:
+  $ref: './user/emptyUserList.yml'
+User:
+  $ref: './user/user.yml'
+UserList:
+  $ref: './user/userList.yml'

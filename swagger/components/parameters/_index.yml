@@ -1,0 +1,7 @@
+# Path
+UserId:
+  $ref: './path/userId.yml'
+
+# Query
+Limit:
+  $ref: './query/limit.yml'
