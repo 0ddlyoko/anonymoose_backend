@@ -1,0 +1,49 @@
+openapi: 3.0.0
+info:
+  title: "Anonymoose API"
+  description: "Official Anonymoose API."
+  version: "1.0.0"
+  termsOfService: "https://swagger.io/terms/"
+  license:
+    name: "MIT"
+    url: "https://opensource.org/licenses/MIT"
+
+servers:
+  - url: https://8eu6juxcs5.execute-api.eu-west-3.amazonaws.com/Test
+    description: TEST
+
+x-amazon-apigateway-request-validators:
+  all:
+    validateRequestBody: true
+    validateRequestParameters: true
+  params:
+    validateRequestBody: false
+    validateRequestParameters: true
+  body:
+    validateRequestBody: true
+    validateRequestParameters: false
+
+paths:
+  /user:
+    $ref: './paths/user/user.yml'
+  /user/{userId}:
+    $ref: './paths/user/id.yml'
+  /profile:
+    $ref: './paths/profile/profile.yml'
+
+components:
+  securitySchemes:
+    $ref: './components/securitySchemes/_index.yml'
+  responses:
+    $ref: './components/responses/_index.yml'
+  parameters:
+    $ref: './components/parameters/_index.yml'
+#  schemas:
+#    $ref: './components/schemas/_index.yml'
+  examples:
+    $ref: './components/examples/_index.yml'
+
+
+externalDocs:
+  description: "Anonymoose"
+  url: "https://anonymoose.com"

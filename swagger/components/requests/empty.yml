@@ -1,0 +1,7 @@
+name: "empty"
+description: "Empty"
+content:
+  application/json:
+    schema:
+      title: "Empty Schema"
+      type: "object"

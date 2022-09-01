@@ -74,14 +74,14 @@ exports.postProfile = (event, ctx, callback) => {
     console.info('postProfile', 'received: ', event);
 
     if (!event.requestContext.authorizer || !event.requestContext.authorizer.claims) {
-        callback(null, common.makeErrorRequest(400, "Invalid authorizer"));
+        callback(null, common.makeErrorRequest(401, "Invalid authorizer"));
         return;
     }
     const claims = event.requestContext.authorizer.claims;
     const email = claims.email;
     const name = claims["cognito:username"];
     if (!email || !name) {
-        callback(null, common.makeErrorRequest(400, "Invalid authorizer"));
+        callback(null, common.makeErrorRequest(401, "Invalid authorizer"));
         return;
     }
 
@@ -92,7 +92,7 @@ exports.postProfile = (event, ctx, callback) => {
         const emailExist = v[0];
         const nameExist = v[1];
         if (emailExist || nameExist)
-            return common.makeErrorRequest(400, "Name or Email already exist");
+            return common.makeErrorRequest(409, "Name or Email already exist");
 
         const item = {
             id: {S: uuidv4()},

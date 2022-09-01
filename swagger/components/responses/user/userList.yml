@@ -1,0 +1,8 @@
+description: "List users"
+content:
+  application/json:
+    examples:
+      existingUsers:
+        $ref: '../../examples/user/userList.yml'
+      emptyUsers:
+        $ref: '../../examples/user/emptyUserList.yml'

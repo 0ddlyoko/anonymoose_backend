@@ -1,0 +1,10 @@
+description: "A list of users"
+value:
+  size: 2
+  data:
+    - id: 86173d9f-f7f4-4965-8e9d-f37783bf6fa7
+      name: 0ddlyoko
+      picture: https://cdn.anonymoose.com/u/86173d9f-f7f4-4965-8e9d-f37783bf6fa7.png
+    - id: 86173d9f-f7f4-4965-8e9d-f37783bf6fa8
+      name: 1ddlyoko
+      picture: https://cdn.anonymoose.com/u/86173d9f-f7f4-4965-8e9d-f37783bf6fa8.png

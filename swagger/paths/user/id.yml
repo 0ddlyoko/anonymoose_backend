@@ -1,0 +1,48 @@
+get:
+  operationId: getUser
+  summary: "Retrieve a user"
+  description: "Retrieve information about a single user"
+  tags: [User]
+  x-amazon-apigateway-request-validator: params
+  x-amazon-apigateway-integration:
+    uri:
+      Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetUserFunction.Arn}/invocations
+    httpMethod: "POST"
+    timeoutInMillis: 4000
+    credentials:
+      Fn::GetAtt: APIGatewayInvokeLambdaRole.Arn
+    type: "aws_proxy"
+  parameters:
+    - $ref: '../../components/parameters/path/userId.yml'
+  responses:
+    200:
+      $ref: '../../components/responses/user/user.yml'
+    401:
+      $ref: '../../components/responses/error/unauthorized.yml'
+    404:
+      $ref: '../../components/responses/error/notFound.yml'
+  security:
+    - amazonCognito: []
+
+options:
+  responses:
+    200:
+      $ref: '../../components/responses/cors.yml'
+    400:
+      $ref: '../../components/responses/cors.yml'
+    500:
+      $ref: '../../components/responses/cors.yml'
+  x-amazon-apigateway-integration:
+    responses:
+      default:
+        statusCode: '200'
+        responseParameters:
+          method.response.header.Access-Control-Max-Age: '''7200'''
+          method.response.header.Access-Control-Allow-Methods: '''OPTIONS,HEAD,GET,POST,PUT,DELETE'''
+          method.response.header.Access-Control-Allow-Headers: '''Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'''
+          method.response.header.Access-Control-Allow-Origin: '''*'''
+    passthroughBehavior: when_no_match
+    timeoutInMillis: 29000
+    requestTemplates:
+      application/json: '{ "statusCode": 200 }'
+    type: mock

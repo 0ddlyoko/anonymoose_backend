@@ -1,0 +1,25 @@
+# Error
+AlreadyExistError:
+  $ref: './error/alreadyExist.yml'
+InvalidAuthorizerError:
+  $ref: './error/invalidAuthorizer.yml'
+NotFoundError:
+  $ref: './error/notFound.yml'
+UnauthorizedError:
+  $ref: './error/unauthorized.yml'
+
+# Profile
+Profile:
+  $ref: './profile/profile.yml'
+
+# User
+User:
+  $ref: './user/user.yml'
+UserList:
+  $ref: './user/userList.yml'
+
+# General
+Cors:
+  $ref: './cors.yml'
+Empty:
+  $ref: './empty.yml'

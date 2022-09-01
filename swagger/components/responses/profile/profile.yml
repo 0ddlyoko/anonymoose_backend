@@ -1,0 +1,6 @@
+description: "Profile"
+content:
+  application/json:
+    examples:
+      existingProfile:
+        $ref: '../../examples/profile/profile.yml'
