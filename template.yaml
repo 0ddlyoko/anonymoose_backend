@@ -77,6 +77,7 @@ Resources:
 
 
   # Lambda Functions
+  # Users
   GetUsersFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -105,6 +106,7 @@ Resources:
         Variables:
           TABLE_USER: !Ref UserTable
 
+  # Profiles
   GetProfileFunction:
     Type: AWS::Serverless::Function
     Properties:
