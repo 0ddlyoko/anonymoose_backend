@@ -1,0 +1,18 @@
+description: "Tweet"
+content:
+  application/json:
+    schema:
+      title: "Tweet Schema"
+      type: "object"
+      properties:
+        title:
+          type: string
+          required: true
+        text:
+          type: string
+          required: true
+        author:
+          type: object
+          properties:
+            hidden:
+              type: boolean

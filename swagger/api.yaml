@@ -30,18 +30,24 @@ paths:
     $ref: './paths/user/id.yml'
   /profile:
     $ref: './paths/profile/profile.yml'
+  /tweet:
+    $ref: './paths/tweet/tweet.yml'
+  /tweet/{tweetId}:
+    $ref: './paths/tweet/id.yml'
 
 components:
-  securitySchemes:
-    $ref: './components/securitySchemes/_index.yml'
-  responses:
-    $ref: './components/responses/_index.yml'
-  parameters:
-    $ref: './components/parameters/_index.yml'
-#  schemas:
-#    $ref: './components/schemas/_index.yml'
   examples:
     $ref: './components/examples/_index.yml'
+  parameters:
+    $ref: './components/parameters/_index.yml'
+  requestBodies:
+    $ref: './components/requestBodies/_index.yml'
+  responses:
+    $ref: './components/responses/_index.yml'
+  #  schemas:
+  #    $ref: './components/schemas/_index.yml'
+  securitySchemes:
+    $ref: './components/securitySchemes/_index.yml'
 
 
 externalDocs:

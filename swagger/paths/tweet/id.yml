@@ -1,47 +1,26 @@
 get:
-  operationId: getProfile
-  summary: "Retrieve current profile information"
-  description: "Retrieve current profile information based on given ID Token"
-  tags: [Profile]
+  operationId: getTweet
+  summary: "Retrieve a tweet"
+  description: "Retrieve information about a single tweet"
+  tags: [Tweet]
   x-amazon-apigateway-request-validator: params
   x-amazon-apigateway-integration:
     uri:
-      Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetProfileFunction.Arn}/invocations
+      Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetTweetFunction.Arn}/invocations
     httpMethod: "POST"
     timeoutInMillis: 4000
     credentials:
       Fn::GetAtt: APIGatewayInvokeLambdaRole.Arn
     type: "aws_proxy"
+  parameters:
+    - $ref: '../../components/parameters/path/tweetId.yml'
   responses:
     200:
-      $ref: '../../components/responses/profile/profile.yml'
-    400:
-      $ref: '../../components/responses/error/invalidAuthorizer.yml'
+      $ref: '../../components/responses/tweet/tweet.yml'
     401:
       $ref: '../../components/responses/error/unauthorized.yml'
     404:
       $ref: '../../components/responses/error/notFound.yml'
-  security:
-    - amazonCognito: []
-post:
-  operationId: postProfile
-  summary: "Create a new profile"
-  description: "Create a new profile based on given ID Token"
-  tags: [Profile]
-  x-amazon-apigateway-request-validator: all
-  x-amazon-apigateway-integration:
-    uri:
-      Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PostProfileFunction.Arn}/invocations
-    httpMethod: "POST"
-    timeoutInMillis: 4000
-    credentials:
-      Fn::GetAtt: APIGatewayInvokeLambdaRole.Arn
-    type: "aws_proxy"
-  responses:
-    201:
-      $ref: '../../components/responses/profile/profile.yml'
-    401:
-      $ref: '../../components/responses/error/unauthorized.yml'
   security:
     - amazonCognito: []
 

@@ -1,0 +1,8 @@
+description: "Tweet"
+content:
+  application/json:
+    examples:
+      existingTweet:
+        $ref: '../../examples/tweet/tweet.yml'
+      hiddenTweet:
+        $ref: '../../examples/tweet/hiddenTweet.yml'
