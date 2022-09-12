@@ -88,9 +88,6 @@ Resources:
             TableName: !Ref UserTable
       CodeUri: src/app/user
       Handler: user.getUsers
-      Environment:
-        Variables:
-          TABLE_USER: !Ref UserTable
 
   GetUserFunction:
     Type: AWS::Serverless::Function
@@ -102,9 +99,19 @@ Resources:
             TableName: !Ref UserTable
       CodeUri: src/app/user
       Handler: user.getUser
-      Environment:
-        Variables:
-          TABLE_USER: !Ref UserTable
+
+  GetUserTweetsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: Retrieve tweets from a user
+      FunctionName: Anonymoose-Test-getUserTweets
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UserTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TweetTable
+      CodeUri: src/app/user
+      Handler: tweet/tweet.getUserTweets
 
   # Profiles
   GetProfileFunction:
@@ -117,27 +124,57 @@ Resources:
             TableName: !Ref UserTable
       CodeUri: src/app/profile
       Handler: profile.getProfile
-      Environment:
-        Variables:
-          TABLE_USER: !Ref UserTable
-          TABLE_USER_EMAIL_IDX: EmailIndex
-          TABLE_USER_NAME_IDX: NameIndex
 
   PostProfileFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Description: Retrieve current profile information
+      Description: Create a new profile with given token id information
       FunctionName: Anonymoose-Test-postProfile
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref UserTable
       CodeUri: src/app/profile
       Handler: profile.postProfile
-      Environment:
-        Variables:
-          TABLE_USER: !Ref UserTable
-          TABLE_USER_EMAIL_IDX: EmailIndex
-          TABLE_USER_NAME_IDX: NameIndex
+
+  # Tweets
+  GetTweetsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: Retrieves all tweets
+      FunctionName: Anonymoose-Test-getTweets
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UserTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TweetTable
+      CodeUri: src/app/tweet
+      Handler: tweet.getTweets
+
+  GetTweetFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: Retrieve a tweet
+      FunctionName: Anonymoose-Test-getTweet
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UserTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TweetTable
+      CodeUri: src/app/tweet
+      Handler: tweet.getTweet
+
+  PostTweetFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: Retrieve current tweet information
+      FunctionName: Anonymoose-Test-postTweet
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UserTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TweetTable
+      CodeUri: src/app/tweet
+      Handler: tweet.postTweet
 
   # Simple syntax to create a DynamoDB table with a single attribute primary key, more in
   # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlesssimpletable
@@ -145,6 +182,7 @@ Resources:
   UserTable:
     Type: AWS::DynamoDB::Table
     Properties:
+      TableName: User
       AttributeDefinitions:
         - AttributeName: id
           AttributeType: S
@@ -168,7 +206,26 @@ Resources:
               KeyType: HASH
           Projection:
             ProjectionType: ALL
-      TableName: User
+      BillingMode: PAY_PER_REQUEST
+  TweetTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: Tweet
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+        - AttributeName: author
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: AuthorIndex
+          KeySchema:
+            - AttributeName: author
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
       BillingMode: PAY_PER_REQUEST
 
 

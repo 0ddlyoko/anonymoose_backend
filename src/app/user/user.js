@@ -1,8 +1,6 @@
-const TABLE_USER = process.env.TABLE_USER;
-
 const AWS = require('aws-sdk')
 const db = new AWS.DynamoDB({ region: 'eu-west-3' })
-const common = require('common');
+const { request } = require('common');
 const { validate: isUuid } = require("uuid");
 
 const userToJson = user => {
@@ -19,20 +17,18 @@ exports.getUsers = (event, ctx, callback) => {
 
     let limit = 20;
     if (event.queryStringParameters)
-        limit = Math.min(limit, Math.max(0, event.queryStringParameters.limit)) || limit;
+        limit = Math.min(limit, Math.max(1, event.queryStringParameters.limit)) || limit;
 
     db.scan({
-        TableName: TABLE_USER,
+        TableName: "User",
         Limit: limit,
     })
         .promise()
-        .then(data => {
-            return common.makeRequest(200, {
-                count: data.Count,
-                items: data.Items.map(d => userToJson(d)),
-            });
-        })
-        .catch(ex => common.makeServerErrorRequest(ex, "exports.getAll"))
+        .then(data => request.makeRequest(200, {
+            count: data.Count,
+            items: data.Items.map(d => userToJson(d)),
+        }))
+        .catch(ex => request.makeServerErrorRequest(ex, "exports.getAll"))
         .then(data => callback(null, data));
 };
 
@@ -42,12 +38,12 @@ exports.getUser = (event, ctx, callback) => {
     const id = event.pathParameters.userId;
     // This should be an uuid
     if (!isUuid(id)) {
-        callback(null, common.makeErrorRequest(400, "Please enter a valid uuid"));
+        callback(null, request.makeErrorRequest(400, "Please enter a valid uuid"));
         return;
     }
 
     db.getItem({
-        TableName: TABLE_USER,
+        TableName: "User",
         Key: {
             id: {S: id},
         },
@@ -55,9 +51,9 @@ exports.getUser = (event, ctx, callback) => {
         .promise()
         .then(data => {
             if (!data.Item)
-                return common.makeErrorRequest(404, "User not found");
-            return common.makeRequest(200, userToJson(data.Item));
+                return request.makeErrorRequest(404, "User not found");
+            return request.makeRequest(200, userToJson(data.Item));
         })
-        .catch(ex => common.makeServerErrorRequest(ex, "exports.getOne"))
+        .catch(ex => request.makeServerErrorRequest(ex, "exports.getUser"))
         .then(data => callback(null, data));
 };

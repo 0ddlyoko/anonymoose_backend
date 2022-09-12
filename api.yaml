@@ -117,6 +117,60 @@ paths:
         requestTemplates:
           application/json: '{ "statusCode": 200 }'
         type: mock
+  '/user/{userId}/tweet':
+    get:
+      operationId: getUserTweets
+      summary: Retrieve tweets from a user
+      description: Retrieve tweets made by a user
+      tags:
+        - User
+      x-amazon-apigateway-request-validator: params
+      x-amazon-apigateway-integration:
+        uri:
+          'Fn::Sub': 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetUserTweetsFunction.Arn}/invocations'
+        httpMethod: POST
+        timeoutInMillis: 4000
+        credentials:
+          'Fn::GetAtt': APIGatewayInvokeLambdaRole.Arn
+        type: aws_proxy
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          description: List tweets of user
+          content:
+            application/json:
+              examples:
+                existingTweets:
+                  $ref: '#/components/examples/NotHiddenTweetList'
+                emptyTweets:
+                  $ref: '#/components/examples/EmptyTweetList'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+      security:
+        - amazonCognito: []
+    options:
+      responses:
+        '200':
+          $ref: '#/components/responses/Cors'
+        '400':
+          $ref: '#/components/responses/Cors'
+        '500':
+          $ref: '#/components/responses/Cors'
+      x-amazon-apigateway-integration:
+        responses:
+          default:
+            statusCode: '200'
+            responseParameters:
+              method.response.header.Access-Control-Max-Age: '''7200'''
+              method.response.header.Access-Control-Allow-Methods: '''OPTIONS,HEAD,GET,POST,PUT,DELETE'''
+              method.response.header.Access-Control-Allow-Headers: '''Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'''
+              method.response.header.Access-Control-Allow-Origin: '''*'''
+        passthroughBehavior: when_no_match
+        timeoutInMillis: 29000
+        requestTemplates:
+          application/json: '{ "statusCode": 200 }'
+        type: mock
   /profile:
     get:
       operationId: getProfile
@@ -164,6 +218,79 @@ paths:
           $ref: '#/components/responses/Profile'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
+      security:
+        - amazonCognito: []
+    options:
+      responses:
+        '200':
+          $ref: '#/components/responses/Cors'
+        '400':
+          $ref: '#/components/responses/Cors'
+        '500':
+          $ref: '#/components/responses/Cors'
+      x-amazon-apigateway-integration:
+        responses:
+          default:
+            statusCode: '200'
+            responseParameters:
+              method.response.header.Access-Control-Max-Age: '''7200'''
+              method.response.header.Access-Control-Allow-Methods: '''OPTIONS,HEAD,GET,POST,PUT,DELETE'''
+              method.response.header.Access-Control-Allow-Headers: '''Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'''
+              method.response.header.Access-Control-Allow-Origin: '''*'''
+        passthroughBehavior: when_no_match
+        timeoutInMillis: 29000
+        requestTemplates:
+          application/json: '{ "statusCode": 200 }'
+        type: mock
+  /tweet:
+    get:
+      operationId: getTweets
+      summary: Retrieve tweets
+      description: Retrieve tweets based on some condition
+      tags:
+        - Tweet
+      x-amazon-apigateway-request-validator: params
+      x-amazon-apigateway-integration:
+        uri:
+          'Fn::Sub': 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetTweetsFunction.Arn}/invocations'
+        httpMethod: POST
+        timeoutInMillis: 4000
+        credentials:
+          'Fn::GetAtt': APIGatewayInvokeLambdaRole.Arn
+        type: aws_proxy
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          $ref: '#/components/responses/TweetList'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+      security:
+        - amazonCognito: []
+    post:
+      operationId: postTweet
+      summary: Create a new tweet
+      description: Create a new tweet
+      tags:
+        - Tweet
+      x-amazon-apigateway-request-validator: all
+      x-amazon-apigateway-integration:
+        uri:
+          'Fn::Sub': 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PostTweetFunction.Arn}/invocations'
+        httpMethod: POST
+        timeoutInMillis: 4000
+        credentials:
+          'Fn::GetAtt': APIGatewayInvokeLambdaRole.Arn
+        type: aws_proxy
+      requestBody:
+        $ref: '#/components/requestBodies/Tweet'
+      responses:
+        '201':
+          $ref: '#/components/responses/Tweet'
+        '400':
+          $ref: '#/components/responses/InvalidBodyError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
         '409':
           $ref: '#/components/responses/AlreadyExistError'
       security:
@@ -190,22 +317,202 @@ paths:
         requestTemplates:
           application/json: '{ "statusCode": 200 }'
         type: mock
+  '/tweet/{tweetId}':
+    get:
+      operationId: getTweet
+      summary: Retrieve a tweet
+      description: Retrieve information about a single tweet
+      tags:
+        - Tweet
+      x-amazon-apigateway-request-validator: params
+      x-amazon-apigateway-integration:
+        uri:
+          'Fn::Sub': 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetTweetFunction.Arn}/invocations'
+        httpMethod: POST
+        timeoutInMillis: 4000
+        credentials:
+          'Fn::GetAtt': APIGatewayInvokeLambdaRole.Arn
+        type: aws_proxy
+      parameters:
+        - $ref: '#/components/parameters/TweetId'
+      responses:
+        '200':
+          $ref: '#/components/responses/Tweet'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      security:
+        - amazonCognito: []
+    options:
+      responses:
+        '200':
+          $ref: '#/components/responses/Cors'
+        '400':
+          $ref: '#/components/responses/Cors'
+        '500':
+          $ref: '#/components/responses/Cors'
+      x-amazon-apigateway-integration:
+        responses:
+          default:
+            statusCode: '200'
+            responseParameters:
+              method.response.header.Access-Control-Max-Age: '''7200'''
+              method.response.header.Access-Control-Allow-Methods: '''OPTIONS,HEAD,GET,POST,PUT,DELETE'''
+              method.response.header.Access-Control-Allow-Headers: '''Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'''
+              method.response.header.Access-Control-Allow-Origin: '''*'''
+        passthroughBehavior: when_no_match
+        timeoutInMillis: 29000
+        requestTemplates:
+          application/json: '{ "statusCode": 200 }'
+        type: mock
 components:
-  securitySchemes:
-    amazonCognito:
-      type: apiKey
-      name: Authorization
-      in: header
-      x-amazon-apigateway-authtype: cognito_user_pools
-      x-amazon-apigateway-authorizer:
-        type: cognito_user_pools
-        providerARNs:
-          - 'arn:aws:cognito-idp:eu-west-3:260316834066:userpool/eu-west-3_1EskCYThl'
+  examples:
+    Profile:
+      description: An existing profile
+      value:
+        id: 86173d9f-f7f4-4965-8e9d-f37783bf6fa7
+        name: 0ddlyoko
+        picture: 'https://cdn.anonymoose.com/u/86173d9f-f7f4-4965-8e9d-f37783bf6fa7.png'
+    HiddenTweet:
+      description: An hidden tweet
+      value:
+        id: 86173d9f-f7f4-4965-8e9d-f37783bf6fa8
+        title: My hidden Tweet
+        text: 'Hello, this is an hidden tweet! You don''t know who made it!'
+        author:
+          hidden: true
+          name: Hidden
+          picture: 'https://cdn.anonymoose.com/u/hidden.png'
+    EmptyTweetList:
+      description: An empty list of tweets
+      value:
+        size: 0
+        data: []
+    NotHiddenTweetList:
+      description: A list of tweets
+      value:
+        size: 2
+        data:
+          - id: 86173d9f-f7f4-4965-8e9d-f37783bf6fa8
+            title: My Tweet
+            text: 'Hello, this is a tweet!'
+            author:
+              hidden: false
+              id: 86173d9f-f7f4-4965-8e9d-f37783bf6fa7
+              name: 0ddlyoko
+              picture: 'https://cdn.anonymoose.com/u/86173d9f-f7f4-4965-8e9d-f37783bf6fa7.png'
+          - id: 86173d9f-f7f4-4965-8e9d-f37783bf6fa8
+            title: My hidden Tweet
+            text: 'Hello, this is an hidden tweet! You don''t know who made it!'
+            author:
+              hidden: false
+              id: 86173d9f-f7f4-4965-8e9d-f37783bf6fa7
+              name: 0ddlyoko
+              picture: 'https://cdn.anonymoose.com/u/86173d9f-f7f4-4965-8e9d-f37783bf6fa7.png'
+    Tweet:
+      description: A tweet
+      value:
+        id: 86173d9f-f7f4-4965-8e9d-f37783bf6fa8
+        title: My Tweet
+        text: 'Hello, this is a tweet!'
+        author:
+          hidden: false
+          id: 86173d9f-f7f4-4965-8e9d-f37783bf6fa7
+          name: 0ddlyoko
+          picture: 'https://cdn.anonymoose.com/u/86173d9f-f7f4-4965-8e9d-f37783bf6fa7.png'
+    TweetList:
+      description: A list of tweets
+      value:
+        size: 2
+        data:
+          - id: 86173d9f-f7f4-4965-8e9d-f37783bf6fa8
+            title: My Tweet
+            text: 'Hello, this is a tweet!'
+            author:
+              hidden: false
+              id: 86173d9f-f7f4-4965-8e9d-f37783bf6fa7
+              name: 0ddlyoko
+              picture: 'https://cdn.anonymoose.com/u/86173d9f-f7f4-4965-8e9d-f37783bf6fa7.png'
+          - id: 86173d9f-f7f4-4965-8e9d-f37783bf6fa8
+            title: My hidden Tweet
+            text: 'Hello, this is an hidden tweet! You don''t know who made it!'
+            author:
+              hidden: true
+              name: Hidden
+              picture: 'https://cdn.anonymoose.com/u/hidden.png'
+    EmptyUserList:
+      description: An empty list of users
+      value:
+        size: 0
+        data: []
+    User:
+      description: A user
+      value:
+        id: 86173d9f-f7f4-4965-8e9d-f37783bf6fa7
+        name: 0ddlyoko
+        picture: 'https://cdn.anonymoose.com/u/86173d9f-f7f4-4965-8e9d-f37783bf6fa7.png'
+    UserList:
+      description: A list of users
+      value:
+        size: 2
+        data:
+          - id: 86173d9f-f7f4-4965-8e9d-f37783bf6fa7
+            name: 0ddlyoko
+            picture: 'https://cdn.anonymoose.com/u/86173d9f-f7f4-4965-8e9d-f37783bf6fa7.png'
+          - id: 86173d9f-f7f4-4965-8e9d-f37783bf6fa8
+            name: 1ddlyoko
+            picture: 'https://cdn.anonymoose.com/u/86173d9f-f7f4-4965-8e9d-f37783bf6fa8.png'
+  parameters:
+    TweetId:
+      name: tweetId
+      in: path
+      description: Tweet's id
+      schema:
+        type: string
+        format: uuid
+      required: true
+    UserId:
+      name: userId
+      in: path
+      description: User's id
+      schema:
+        type: string
+        format: uuid
+      required: true
+    Limit:
+      name: limit
+      in: query
+      description: Limit the amount of result. Between 1 and 100. Default = 10
+      schema:
+        type: integer
+  requestBodies:
+    Tweet:
+      description: Tweet
+      content:
+        application/json:
+          schema:
+            title: Tweet Schema
+            type: object
+            properties:
+              title:
+                type: string
+                required: true
+              text:
+                type: string
+                required: true
+              author:
+                type: object
+                properties:
+                  hidden:
+                    type: boolean
   responses:
     AlreadyExistError:
       description: Already Exist
     InvalidAuthorizerError:
       description: Invalid ID token
+    InvalidBodyError:
+      description: Invalid body
     NotFoundError:
       description: Data not found
     UnauthorizedError:
@@ -217,6 +524,24 @@ components:
           examples:
             existingProfile:
               $ref: '#/components/examples/Profile'
+    Tweet:
+      description: Tweet
+      content:
+        application/json:
+          examples:
+            existingTweet:
+              $ref: '#/components/examples/Tweet'
+            hiddenTweet:
+              $ref: '#/components/examples/HiddenTweet'
+    TweetList:
+      description: List tweets
+      content:
+        application/json:
+          examples:
+            existingTweets:
+              $ref: '#/components/examples/TweetList'
+            emptyTweets:
+              $ref: '#/components/examples/EmptyTweetList'
     User:
       description: User
       content:
@@ -250,50 +575,16 @@ components:
             type: string
     Empty:
       description: Empty
-  parameters:
-    UserId:
-      name: userId
-      in: path
-      description: User's id
-      schema:
-        type: string
-        format: uuid
-      required: true
-    Limit:
-      name: limit
-      in: query
-      description: Limit the amount of result. Between 1 and 100. Default = 10
-      schema:
-        type: integer
-  examples:
-    Profile:
-      description: An existing profile
-      value:
-        id: 86173d9f-f7f4-4965-8e9d-f37783bf6fa7
-        name: 0ddlyoko
-        picture: 'https://cdn.anonymoose.com/u/86173d9f-f7f4-4965-8e9d-f37783bf6fa7.png'
-    EmptyUserList:
-      description: An empty list of users
-      value:
-        size: 0
-        data: []
-    User:
-      description: A user
-      value:
-        id: 86173d9f-f7f4-4965-8e9d-f37783bf6fa7
-        name: 0ddlyoko
-        picture: 'https://cdn.anonymoose.com/u/86173d9f-f7f4-4965-8e9d-f37783bf6fa7.png'
-    UserList:
-      description: A list of users
-      value:
-        size: 2
-        data:
-          - id: 86173d9f-f7f4-4965-8e9d-f37783bf6fa7
-            name: 0ddlyoko
-            picture: 'https://cdn.anonymoose.com/u/86173d9f-f7f4-4965-8e9d-f37783bf6fa7.png'
-          - id: 86173d9f-f7f4-4965-8e9d-f37783bf6fa8
-            name: 1ddlyoko
-            picture: 'https://cdn.anonymoose.com/u/86173d9f-f7f4-4965-8e9d-f37783bf6fa8.png'
+  securitySchemes:
+    amazonCognito:
+      type: apiKey
+      name: Authorization
+      in: header
+      x-amazon-apigateway-authtype: cognito_user_pools
+      x-amazon-apigateway-authorizer:
+        type: cognito_user_pools
+        providerARNs:
+          - 'arn:aws:cognito-idp:eu-west-3:260316834066:userpool/eu-west-3_1EskCYThl'
 externalDocs:
   description: Anonymoose
   url: 'https://anonymoose.com'

@@ -1,0 +1,4 @@
+description: "An empty list of tweets"
+value:
+  size: 0
+  data: []

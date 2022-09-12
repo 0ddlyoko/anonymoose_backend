@@ -1,0 +1,8 @@
+description: "List tweets of user"
+content:
+  application/json:
+    examples:
+      existingTweets:
+        $ref: '../../../examples/tweet/notHiddenTweetList.yml'
+      emptyTweets:
+        $ref: '../../../examples/tweet/emptyTweetList.yml'

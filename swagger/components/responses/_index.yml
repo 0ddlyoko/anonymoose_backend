@@ -3,6 +3,8 @@ AlreadyExistError:
   $ref: './error/alreadyExist.yml'
 InvalidAuthorizerError:
   $ref: './error/invalidAuthorizer.yml'
+InvalidBodyError:
+  $ref: './error/invalidBody.yml'
 NotFoundError:
   $ref: './error/notFound.yml'
 UnauthorizedError:
@@ -11,6 +13,12 @@ UnauthorizedError:
 # Profile
 Profile:
   $ref: './profile/profile.yml'
+
+# Tweet
+Tweet:
+  $ref: './tweet/tweet.yml'
+TweetList:
+  $ref: './tweet/tweetList.yml'
 
 # User
 User:

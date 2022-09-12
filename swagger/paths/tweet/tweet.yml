@@ -1,47 +1,51 @@
 get:
-  operationId: getProfile
-  summary: "Retrieve current profile information"
-  description: "Retrieve current profile information based on given ID Token"
-  tags: [Profile]
+  operationId: getTweets
+  summary: "Retrieve tweets"
+  description: "Retrieve tweets based on some condition"
+  tags: [Tweet]
   x-amazon-apigateway-request-validator: params
   x-amazon-apigateway-integration:
     uri:
-      Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetProfileFunction.Arn}/invocations
+      Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetTweetsFunction.Arn}/invocations
     httpMethod: "POST"
     timeoutInMillis: 4000
     credentials:
       Fn::GetAtt: APIGatewayInvokeLambdaRole.Arn
     type: "aws_proxy"
+  parameters:
+    - $ref: '../../components/parameters/query/limit.yml'
   responses:
     200:
-      $ref: '../../components/responses/profile/profile.yml'
-    400:
-      $ref: '../../components/responses/error/invalidAuthorizer.yml'
+      $ref: '../../components/responses/tweet/tweetList.yml'
     401:
       $ref: '../../components/responses/error/unauthorized.yml'
-    404:
-      $ref: '../../components/responses/error/notFound.yml'
   security:
     - amazonCognito: []
 post:
-  operationId: postProfile
-  summary: "Create a new profile"
-  description: "Create a new profile based on given ID Token"
-  tags: [Profile]
+  operationId: postTweet
+  summary: "Create a new tweet"
+  description: "Create a new tweet"
+  tags: [Tweet]
   x-amazon-apigateway-request-validator: all
   x-amazon-apigateway-integration:
     uri:
-      Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PostProfileFunction.Arn}/invocations
+      Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PostTweetFunction.Arn}/invocations
     httpMethod: "POST"
     timeoutInMillis: 4000
     credentials:
       Fn::GetAtt: APIGatewayInvokeLambdaRole.Arn
     type: "aws_proxy"
+  requestBody:
+    $ref: '../../components/requestBodies/tweet/tweet.yml'
   responses:
     201:
-      $ref: '../../components/responses/profile/profile.yml'
+      $ref: '../../components/responses/tweet/tweet.yml'
+    400:
+      $ref: '../../components/responses/error/invalidBody.yml'
     401:
       $ref: '../../components/responses/error/unauthorized.yml'
+    409:
+      $ref: '../../components/responses/error/alreadyExist.yml'
   security:
     - amazonCognito: []
 

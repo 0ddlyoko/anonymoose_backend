@@ -1,4 +1,6 @@
 # Path
+TweetId:
+  $ref: './path/tweetId.yml'
 UserId:
   $ref: './path/userId.yml'
 

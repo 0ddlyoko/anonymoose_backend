@@ -1,0 +1,7 @@
+name: "tweetId"
+in: path
+description: "Tweet's id"
+schema:
+  type: string
+  format: uuid
+required: true
