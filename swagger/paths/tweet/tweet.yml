@@ -19,8 +19,8 @@ get:
       $ref: '../../components/responses/tweet/tweetList.yml'
     401:
       $ref: '../../components/responses/error/unauthorized.yml'
-  security:
-    - amazonCognito: []
+#  security:
+#    - amazonCognito: []
 post:
   operationId: postTweet
   summary: "Create a new tweet"
@@ -44,8 +44,6 @@ post:
       $ref: '../../components/responses/error/invalidBody.yml'
     401:
       $ref: '../../components/responses/error/unauthorized.yml'
-    409:
-      $ref: '../../components/responses/error/alreadyExist.yml'
   security:
     - amazonCognito: []
 

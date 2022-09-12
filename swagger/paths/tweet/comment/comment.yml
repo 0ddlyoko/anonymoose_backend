@@ -1,28 +1,51 @@
 get:
-  operationId: getUserTweets
-  summary: "Retrieve tweets from a user"
-  description: "Retrieve tweets made by a user"
-  tags: [User]
+  operationId: getTweetComments
+  summary: "Retrieve comments for a specific tweet"
+  description: "Retrieve comments for a specific tweet"
+  tags: [Tweet]
   x-amazon-apigateway-request-validator: params
   x-amazon-apigateway-integration:
     uri:
-      Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetUserTweetsFunction.Arn}/invocations
+      Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetTweetCommentsFunction.Arn}/invocations
     httpMethod: "POST"
     timeoutInMillis: 4000
     credentials:
       Fn::GetAtt: APIGatewayInvokeLambdaRole.Arn
     type: "aws_proxy"
   parameters:
-    - $ref: '../../../components/parameters/path/userId.yml'
     - $ref: '../../../components/parameters/query/limit.yml'
-    - $ref: '../../../components/parameters/query/comment.yml'
   responses:
     200:
-      $ref: '../../../components/responses/user/tweet/tweetList.yml'
+      $ref: '../../../components/responses/tweet/comment/commentList.yml'
     401:
       $ref: '../../../components/responses/error/unauthorized.yml'
 #  security:
 #    - amazonCognito: []
+post:
+  operationId: postTweetComment
+  summary: "Create a new comment for a tweet"
+  description: "Create a new comment for a tweet"
+  tags: [Tweet]
+  x-amazon-apigateway-request-validator: all
+  x-amazon-apigateway-integration:
+    uri:
+      Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PostTweetCommentFunction.Arn}/invocations
+    httpMethod: "POST"
+    timeoutInMillis: 4000
+    credentials:
+      Fn::GetAtt: APIGatewayInvokeLambdaRole.Arn
+    type: "aws_proxy"
+  requestBody:
+    $ref: '../../../components/requestBodies/tweet/tweet.yml'
+  responses:
+    201:
+      $ref: '../../../components/responses/tweet/comment/comment.yml'
+    400:
+      $ref: '../../../components/responses/error/invalidBody.yml'
+    401:
+      $ref: '../../../components/responses/error/unauthorized.yml'
+  security:
+    - amazonCognito: []
 
 options:
   responses:

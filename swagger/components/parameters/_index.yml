@@ -5,5 +5,7 @@ UserId:
   $ref: './path/userId.yml'
 
 # Query
+Comment:
+  $ref: './query/comment.yml'
 Limit:
   $ref: './query/limit.yml'

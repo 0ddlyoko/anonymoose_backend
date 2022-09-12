@@ -20,7 +20,12 @@ const tweetToJson = tweet => {
         "title": tweet.title.S,
         "text": tweet.text.S,
         "author": author,
+        "comments": {
+            "size": tweet.commentSize ? tweet.commentSize.N : 0,
+        },
     };
+    if (tweet.parent)
+        result["parent"] = tweet.parent.S;
     if (author.hidden)
         return new Promise((resolve) => {
             resolve(result);
@@ -66,9 +71,9 @@ exports.getTweets = (event, ctx, callback) => {
 exports.getTweet = (event, ctx, callback) => {
     console.info('getTweet', 'received: ', event);
 
-    const id = event.pathParameters.tweetId;
+    const tweetId = event.pathParameters.tweetId;
     // This should be an uuid
-    if (!isUuid(id)) {
+    if (!isUuid(tweetId)) {
         callback(null, request.makeErrorRequest(400, "Please enter a valid uuid"));
         return;
     }
@@ -76,7 +81,7 @@ exports.getTweet = (event, ctx, callback) => {
     db.getItem({
         TableName: "Tweet",
         Key: {
-            id: {S: id},
+            id: {S: tweetId},
         },
     })
         .promise()
@@ -125,4 +130,49 @@ exports.postTweet = (event, ctx, callback) => {
     })
         .catch(() => request.makeErrorRequest(400, "Invalid authorizer"))
         .then(data => callback(null, data));
+};
+
+exports.getTweetComments = (event, ctx, callback) => {
+    console.info('getTweetComments', 'received: ', event);
+
+    let limit = 20;
+    if (event.queryStringParameters)
+        limit = Math.min(limit, Math.max(1, event.queryStringParameters.limit)) || limit;
+
+    const tweetId = event.pathParameters.tweetId;
+    // This should be an uuid
+    if (!isUuid(tweetId)) {
+        callback(null, request.makeErrorRequest(400, "Please enter a valid uuid"));
+        return;
+    }
+
+    db.query({
+        TableName: "Tweet",
+        Limit: limit,
+        IndexName: "ParentIndex",
+        KeyConditionExpression: "parent = :parent",
+        ExpressionAttributeValues: {
+            ":parent": {S: tweetId},
+        }
+    })
+        .promise()
+        .then(data => Promise.all(data.Items.map(d => tweetToJson(d))))
+        .then(data => request.makeRequest(200, {
+            count: data.length,
+            items: data,
+        }))
+        .catch(ex => request.makeServerErrorRequest(ex, "exports.getTweetComments"))
+        .then(data => callback(null, data));
+};
+
+exports.postTweetComment = (event, ctx, callback) => {
+    console.info('postTweetComment', 'received: ', event);
+
+    const tweetId = event.pathParameters.tweetId;
+    // This should be an uuid
+    if (!isUuid(tweetId)) {
+        callback(null, request.makeErrorRequest(400, "Please enter a valid uuid"));
+        return;
+    }
+
 };

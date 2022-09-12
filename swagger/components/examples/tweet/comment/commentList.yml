@@ -1,4 +1,4 @@
-description: "A list of tweets"
+description: "A list of comments for a tweet"
 value:
   size: 2
   data:
@@ -12,13 +12,14 @@ value:
         picture: https://cdn.anonymoose.com/u/86173d9f-f7f4-4965-8e9d-f37783bf6fa7.png
       comments:
         size: 2
-    - id: 86173d9f-f7f4-4965-8e9d-f37783bf6fa8
+      parent: 86173d9f-f7f4-4965-8e9d-f37783bf6fa6
+    - id: 86173d9f-f7f4-4965-8e9d-f37783bf6fa9
       title: My hidden Tweet
       text: Hello, this is an hidden tweet! You don't know who made it!
       author:
-        hidden: false
-        id: 86173d9f-f7f4-4965-8e9d-f37783bf6fa7
-        name: 0ddlyoko
-        picture: https://cdn.anonymoose.com/u/86173d9f-f7f4-4965-8e9d-f37783bf6fa7.png
+        hidden: true
+        name: Hidden
+        picture: https://cdn.anonymoose.com/u/hidden.png
       comments:
         size: 0
+      parent: 86173d9f-f7f4-4965-8e9d-f37783bf6fa6

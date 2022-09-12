@@ -1,6 +1,7 @@
 const AWS = require('aws-sdk')
 const db = new AWS.DynamoDB({ region: 'eu-west-3' })
 const { request } = require('common');
+const {validate: isUuid} = require("uuid");
 
 const tweetToJson = tweet => {
     const author = {
@@ -19,7 +20,12 @@ const tweetToJson = tweet => {
         "title": tweet.title.S,
         "text": tweet.text.S,
         "author": author,
+        "comments": {
+            "size": tweet.commentSize ? tweet.commentSize.N : 0,
+        },
     };
+    if (tweet.parent)
+        result["parent"] = tweet.parent.S;
     if (author.hidden)
         return new Promise((resolve) => {
             resolve(result);
@@ -45,16 +51,23 @@ exports.getUserTweets = (event, ctx, callback) => {
     console.info('getUserTweets', 'received: ', event);
 
     let limit = 20;
-    if (event.queryStringParameters)
+    let comment = false;
+    if (event.queryStringParameters) {
         limit = Math.min(limit, Math.max(1, event.queryStringParameters.limit)) || limit;
-    let userId = event.pathParameters.userId;
+        comment = event.queryStringParameters.comment || comment;
+    }
+    const userId = event.pathParameters.userId;
+    if (!isUuid(userId)) {
+        callback(null, request.makeErrorRequest(400, "Please enter a valid uuid"));
+        return;
+    }
 
     db.query({
         TableName: "Tweet",
         Limit: limit,
         IndexName: "AuthorIndex",
         KeyConditionExpression: "author = :author",
-        FilterExpression: "attribute_not_exists(hideAuthor) OR hideAuthor = :true",
+        FilterExpression: "(attribute_not_exists(hideAuthor) OR hideAuthor = :true)" + (comment ? "" : " AND attribute_not_exists(parent)"),
         ExpressionAttributeValues: {
             ":author": {S: userId},
             ":true": {BOOL: true},
@@ -66,6 +79,6 @@ exports.getUserTweets = (event, ctx, callback) => {
             count: data.length,
             items: data,
         }))
-        .catch(ex => request.makeServerErrorRequest(ex, "exports.getTweets"))
+        .catch(ex => request.makeServerErrorRequest(ex, "exports.getUserTweets"))
         .then(data => callback(null, data));
 };
