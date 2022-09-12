@@ -100,6 +100,19 @@ Resources:
       CodeUri: src/app/user
       Handler: user.getUser
 
+  GetUserTweetsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: Retrieve tweets from a user
+      FunctionName: Anonymoose-Test-getUserTweets
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UserTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TweetTable
+      CodeUri: src/app/user
+      Handler: tweet/tweet.getUserTweets
+
   # Profiles
   GetProfileFunction:
     Type: AWS::Serverless::Function

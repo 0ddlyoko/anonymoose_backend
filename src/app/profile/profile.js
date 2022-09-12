@@ -18,9 +18,7 @@ const getEmailPromise = email => {
         IndexName: "EmailIndex",
         KeyConditionExpression: "email = :email",
         ExpressionAttributeValues: {
-            ":email": {
-                S: email,
-            },
+            ":email": {S: email},
         },
     }).promise();
 }
@@ -34,9 +32,7 @@ const getNamePromise = name => {
             "#key": "name",
         },
         ExpressionAttributeValues: {
-            ":username": {
-                S: name,
-            },
+            ":username": {S: name},
         },
     }).promise();
 }

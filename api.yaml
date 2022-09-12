@@ -117,6 +117,60 @@ paths:
         requestTemplates:
           application/json: '{ "statusCode": 200 }'
         type: mock
+  '/user/{userId}/tweet':
+    get:
+      operationId: getUserTweets
+      summary: Retrieve tweets from a user
+      description: Retrieve tweets made by a user
+      tags:
+        - User
+      x-amazon-apigateway-request-validator: params
+      x-amazon-apigateway-integration:
+        uri:
+          'Fn::Sub': 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetUserTweetsFunction.Arn}/invocations'
+        httpMethod: POST
+        timeoutInMillis: 4000
+        credentials:
+          'Fn::GetAtt': APIGatewayInvokeLambdaRole.Arn
+        type: aws_proxy
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          description: List tweets of user
+          content:
+            application/json:
+              examples:
+                existingTweets:
+                  $ref: '#/components/examples/NotHiddenTweetList'
+                emptyTweets:
+                  $ref: '#/components/examples/EmptyTweetList'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+      security:
+        - amazonCognito: []
+    options:
+      responses:
+        '200':
+          $ref: '#/components/responses/Cors'
+        '400':
+          $ref: '#/components/responses/Cors'
+        '500':
+          $ref: '#/components/responses/Cors'
+      x-amazon-apigateway-integration:
+        responses:
+          default:
+            statusCode: '200'
+            responseParameters:
+              method.response.header.Access-Control-Max-Age: '''7200'''
+              method.response.header.Access-Control-Allow-Methods: '''OPTIONS,HEAD,GET,POST,PUT,DELETE'''
+              method.response.header.Access-Control-Allow-Headers: '''Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'''
+              method.response.header.Access-Control-Allow-Origin: '''*'''
+        passthroughBehavior: when_no_match
+        timeoutInMillis: 29000
+        requestTemplates:
+          application/json: '{ "statusCode": 200 }'
+        type: mock
   /profile:
     get:
       operationId: getProfile
@@ -320,28 +374,6 @@ components:
         id: 86173d9f-f7f4-4965-8e9d-f37783bf6fa7
         name: 0ddlyoko
         picture: 'https://cdn.anonymoose.com/u/86173d9f-f7f4-4965-8e9d-f37783bf6fa7.png'
-    EmptyUserList:
-      description: An empty list of users
-      value:
-        size: 0
-        data: []
-    User:
-      description: A user
-      value:
-        id: 86173d9f-f7f4-4965-8e9d-f37783bf6fa7
-        name: 0ddlyoko
-        picture: 'https://cdn.anonymoose.com/u/86173d9f-f7f4-4965-8e9d-f37783bf6fa7.png'
-    UserList:
-      description: A list of users
-      value:
-        size: 2
-        data:
-          - id: 86173d9f-f7f4-4965-8e9d-f37783bf6fa7
-            name: 0ddlyoko
-            picture: 'https://cdn.anonymoose.com/u/86173d9f-f7f4-4965-8e9d-f37783bf6fa7.png'
-          - id: 86173d9f-f7f4-4965-8e9d-f37783bf6fa8
-            name: 1ddlyoko
-            picture: 'https://cdn.anonymoose.com/u/86173d9f-f7f4-4965-8e9d-f37783bf6fa8.png'
     HiddenTweet:
       description: An hidden tweet
       value:
@@ -352,6 +384,32 @@ components:
           hidden: true
           name: Hidden
           picture: 'https://cdn.anonymoose.com/u/hidden.png'
+    EmptyTweetList:
+      description: An empty list of tweets
+      value:
+        size: 0
+        data: []
+    NotHiddenTweetList:
+      description: A list of tweets
+      value:
+        size: 2
+        data:
+          - id: 86173d9f-f7f4-4965-8e9d-f37783bf6fa8
+            title: My Tweet
+            text: 'Hello, this is a tweet!'
+            author:
+              hidden: false
+              id: 86173d9f-f7f4-4965-8e9d-f37783bf6fa7
+              name: 0ddlyoko
+              picture: 'https://cdn.anonymoose.com/u/86173d9f-f7f4-4965-8e9d-f37783bf6fa7.png'
+          - id: 86173d9f-f7f4-4965-8e9d-f37783bf6fa8
+            title: My hidden Tweet
+            text: 'Hello, this is an hidden tweet! You don''t know who made it!'
+            author:
+              hidden: false
+              id: 86173d9f-f7f4-4965-8e9d-f37783bf6fa7
+              name: 0ddlyoko
+              picture: 'https://cdn.anonymoose.com/u/86173d9f-f7f4-4965-8e9d-f37783bf6fa7.png'
     Tweet:
       description: A tweet
       value:
@@ -383,6 +441,28 @@ components:
               hidden: true
               name: Hidden
               picture: 'https://cdn.anonymoose.com/u/hidden.png'
+    EmptyUserList:
+      description: An empty list of users
+      value:
+        size: 0
+        data: []
+    User:
+      description: A user
+      value:
+        id: 86173d9f-f7f4-4965-8e9d-f37783bf6fa7
+        name: 0ddlyoko
+        picture: 'https://cdn.anonymoose.com/u/86173d9f-f7f4-4965-8e9d-f37783bf6fa7.png'
+    UserList:
+      description: A list of users
+      value:
+        size: 2
+        data:
+          - id: 86173d9f-f7f4-4965-8e9d-f37783bf6fa7
+            name: 0ddlyoko
+            picture: 'https://cdn.anonymoose.com/u/86173d9f-f7f4-4965-8e9d-f37783bf6fa7.png'
+          - id: 86173d9f-f7f4-4965-8e9d-f37783bf6fa8
+            name: 1ddlyoko
+            picture: 'https://cdn.anonymoose.com/u/86173d9f-f7f4-4965-8e9d-f37783bf6fa8.png'
   parameters:
     TweetId:
       name: tweetId
@@ -461,10 +541,7 @@ components:
             existingTweets:
               $ref: '#/components/examples/TweetList'
             emptyTweets:
-              description: An empty list of tweets
-              value:
-                size: 0
-                data: []
+              $ref: '#/components/examples/EmptyTweetList'
     User:
       description: User
       content:

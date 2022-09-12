@@ -28,6 +28,8 @@ paths:
     $ref: './paths/user/user.yml'
   /user/{userId}:
     $ref: './paths/user/id.yml'
+  /user/{userId}/tweet:
+    $ref: './paths/user/tweet/tweet.yml'
   /profile:
     $ref: './paths/profile/profile.yml'
   /tweet:

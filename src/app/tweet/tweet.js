@@ -1,8 +1,7 @@
 const AWS = require('aws-sdk')
 const db = new AWS.DynamoDB({ region: 'eu-west-3' })
 const { request, authorizer } = require('common');
-const { validate: isUuid } = require("uuid");
-const { v4: uuidv4 } = require("uuid");
+const { validate: isUuid, v4: uuidv4 } = require("uuid");
 
 const tweetToJson = tweet => {
     const author = {
@@ -94,11 +93,6 @@ exports.getTweet = (event, ctx, callback) => {
 exports.postTweet = (event, ctx, callback) => {
     console.info('postTweet', 'received: ', event);
 
-    const user = authorizer.getUser(event, db);
-    if (!user) {
-        callback(null, request.makeErrorRequest(400, "Invalid authorizer"));
-        return;
-    }
     if (!event.body) {
         callback(null, request.makeErrorRequest(400, "Please enter a valid body"));
         return;
@@ -109,7 +103,7 @@ exports.postTweet = (event, ctx, callback) => {
         return;
     }
     const hideAuthor = author === undefined || author.hidden;
-    user.then(data => {
+    authorizer.getUser(event, db).then(data => {
         if (data.Items.length === 0)
             return request.makeErrorRequest(404, "Profile not found");
         const user = data.Items[0];
@@ -129,6 +123,6 @@ exports.postTweet = (event, ctx, callback) => {
             .then(_ => tweetToJson(item))
             .then(data => request.makeRequest(200, data))
     })
-        .catch(ex => request.makeServerErrorRequest("exports.postTweet", ex))
+        .catch(() => request.makeErrorRequest(400, "Invalid authorizer"))
         .then(data => callback(null, data));
 };

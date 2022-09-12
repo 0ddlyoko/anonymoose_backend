@@ -2,6 +2,18 @@
 Profile:
   $ref: './profile/profile.yml'
 
+# Tweet
+HiddenTweet:
+  $ref: './tweet/hiddenTweet.yml'
+EmptyTweetList:
+  $ref: './tweet/emptyTweetList.yml'
+NotHiddenTweetList:
+  $ref: './tweet/notHiddenTweetList.yml'
+Tweet:
+  $ref: './tweet/tweet.yml'
+TweetList:
+  $ref: './tweet/tweetList.yml'
+
 # User
 EmptyUserList:
   $ref: './user/emptyUserList.yml'
@@ -9,11 +21,3 @@ User:
   $ref: './user/user.yml'
 UserList:
   $ref: './user/userList.yml'
-
-# Tweet
-HiddenTweet:
-  $ref: './tweet/hiddenTweet.yml'
-Tweet:
-  $ref: './tweet/tweet.yml'
-TweetList:
-  $ref: './tweet/tweetList.yml'
