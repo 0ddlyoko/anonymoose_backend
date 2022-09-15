@@ -1,8 +1,8 @@
-description: "A tweet"
+description: "A comment for a tweet"
 value:
-  id: 86173d9f-f7f4-4965-8e9d-f37783bf6fa8
-  title: My Tweet
-  text: Hello, this is a tweet!
+  id: 86173d9f-f7f4-4965-8e9d-f37783bf6fa9
+  title: My comment
+  text: Hello, this is a comment!
   author:
     hidden: false
     id: 86173d9f-f7f4-4965-8e9d-f37783bf6fa7
@@ -10,3 +10,4 @@ value:
     picture: https://cdn.anonymoose.com/u/86173d9f-f7f4-4965-8e9d-f37783bf6fa7.png
   comments:
     size: 2
+  parent: 86173d9f-f7f4-4965-8e9d-f37783bf6fa8

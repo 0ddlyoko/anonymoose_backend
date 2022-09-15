@@ -135,6 +135,8 @@ paths:
         type: aws_proxy
       parameters:
         - $ref: '#/components/parameters/UserId'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Comment'
       responses:
         '200':
           description: List tweets of user
@@ -291,8 +293,6 @@ paths:
           $ref: '#/components/responses/InvalidBodyError'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
-        '409':
-          $ref: '#/components/responses/AlreadyExistError'
       security:
         - amazonCognito: []
     options:
@@ -366,6 +366,79 @@ paths:
         requestTemplates:
           application/json: '{ "statusCode": 200 }'
         type: mock
+  '/tweet/{tweetId}/comment':
+    get:
+      operationId: getTweetComments
+      summary: Retrieve comments for a specific tweet
+      description: Retrieve comments for a specific tweet
+      tags:
+        - Tweet
+      x-amazon-apigateway-request-validator: params
+      x-amazon-apigateway-integration:
+        uri:
+          'Fn::Sub': 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetTweetCommentsFunction.Arn}/invocations'
+        httpMethod: POST
+        timeoutInMillis: 4000
+        credentials:
+          'Fn::GetAtt': APIGatewayInvokeLambdaRole.Arn
+        type: aws_proxy
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          $ref: '#/components/responses/CommentList'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+      security:
+        - amazonCognito: []
+    post:
+      operationId: postTweetComment
+      summary: Create a new comment for a tweet
+      description: Create a new comment for a tweet
+      tags:
+        - Tweet
+      x-amazon-apigateway-request-validator: all
+      x-amazon-apigateway-integration:
+        uri:
+          'Fn::Sub': 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PostTweetCommentFunction.Arn}/invocations'
+        httpMethod: POST
+        timeoutInMillis: 4000
+        credentials:
+          'Fn::GetAtt': APIGatewayInvokeLambdaRole.Arn
+        type: aws_proxy
+      requestBody:
+        $ref: '#/components/requestBodies/Tweet'
+      responses:
+        '201':
+          $ref: '#/components/responses/Comment'
+        '400':
+          $ref: '#/components/responses/InvalidBodyError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+      security:
+        - amazonCognito: []
+    options:
+      responses:
+        '200':
+          $ref: '#/components/responses/Cors'
+        '400':
+          $ref: '#/components/responses/Cors'
+        '500':
+          $ref: '#/components/responses/Cors'
+      x-amazon-apigateway-integration:
+        responses:
+          default:
+            statusCode: '200'
+            responseParameters:
+              method.response.header.Access-Control-Max-Age: '''7200'''
+              method.response.header.Access-Control-Allow-Methods: '''OPTIONS,HEAD,GET,POST,PUT,DELETE'''
+              method.response.header.Access-Control-Allow-Headers: '''Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'''
+              method.response.header.Access-Control-Allow-Origin: '''*'''
+        passthroughBehavior: when_no_match
+        timeoutInMillis: 29000
+        requestTemplates:
+          application/json: '{ "statusCode": 200 }'
+        type: mock
 components:
   examples:
     Profile:
@@ -374,6 +447,114 @@ components:
         id: 86173d9f-f7f4-4965-8e9d-f37783bf6fa7
         name: 0ddlyoko
         picture: 'https://cdn.anonymoose.com/u/86173d9f-f7f4-4965-8e9d-f37783bf6fa7.png'
+    Comment:
+      description: A comment for a tweet
+      value:
+        id: 86173d9f-f7f4-4965-8e9d-f37783bf6fa9
+        title: My comment
+        text: 'Hello, this is a comment!'
+        author:
+          hidden: false
+          id: 86173d9f-f7f4-4965-8e9d-f37783bf6fa7
+          name: 0ddlyoko
+          picture: 'https://cdn.anonymoose.com/u/86173d9f-f7f4-4965-8e9d-f37783bf6fa7.png'
+        comments:
+          size: 2
+        parent: 86173d9f-f7f4-4965-8e9d-f37783bf6fa8
+    CommentAndTweetList:
+      description: A list of tweets and comments
+      value:
+        size: 4
+        data:
+          - id: 86173d9f-f7f4-4965-8e9d-f37783bf6fa8
+            title: My Tweet
+            text: 'Hello, this is a tweet!'
+            author:
+              hidden: false
+              id: 86173d9f-f7f4-4965-8e9d-f37783bf6fa7
+              name: 0ddlyoko
+              picture: 'https://cdn.anonymoose.com/u/86173d9f-f7f4-4965-8e9d-f37783bf6fa7.png'
+            comments:
+              size: 2
+          - id: 86173d9f-f7f4-4965-8e9d-f37783bf6fa9
+            title: My hidden Tweet
+            text: 'Hello, this is an hidden tweet! You don''t know who made it!'
+            author:
+              hidden: true
+              name: Hidden
+              picture: 'https://cdn.anonymoose.com/u/hidden.png'
+            comments:
+              size: 0
+          - id: 86173d9f-f7f4-4965-8e9d-f37783bf6faa
+            title: My Tweet
+            text: 'Hello, this is a tweet!'
+            author:
+              hidden: false
+              id: 86173d9f-f7f4-4965-8e9d-f37783bf6fa7
+              name: 0ddlyoko
+              picture: 'https://cdn.anonymoose.com/u/86173d9f-f7f4-4965-8e9d-f37783bf6fa7.png'
+            comments:
+              size: 2
+            parent: 86173d9f-f7f4-4965-8e9d-f37783bf6fa8
+          - id: 86173d9f-f7f4-4965-8e9d-f37783bf6fab
+            title: My hidden Tweet
+            text: 'Hello, this is an hidden tweet! You don''t know who made it!'
+            author:
+              hidden: true
+              name: Hidden
+              picture: 'https://cdn.anonymoose.com/u/hidden.png'
+            comments:
+              size: 0
+            parent: 86173d9f-f7f4-4965-8e9d-f37783bf6fa8
+    CommentList:
+      description: A list of comments for a tweet
+      value:
+        size: 2
+        data:
+          - id: 86173d9f-f7f4-4965-8e9d-f37783bf6fa8
+            title: My Tweet
+            text: 'Hello, this is a tweet!'
+            author:
+              hidden: false
+              id: 86173d9f-f7f4-4965-8e9d-f37783bf6fa7
+              name: 0ddlyoko
+              picture: 'https://cdn.anonymoose.com/u/86173d9f-f7f4-4965-8e9d-f37783bf6fa7.png'
+            comments:
+              size: 2
+            parent: 86173d9f-f7f4-4965-8e9d-f37783bf6fa6
+          - id: 86173d9f-f7f4-4965-8e9d-f37783bf6fa9
+            title: My hidden Tweet
+            text: 'Hello, this is an hidden tweet! You don''t know who made it!'
+            author:
+              hidden: true
+              name: Hidden
+              picture: 'https://cdn.anonymoose.com/u/hidden.png'
+            comments:
+              size: 0
+            parent: 86173d9f-f7f4-4965-8e9d-f37783bf6fa6
+    EmptyCommentList:
+      description: An empty list of comments for a tweet
+      value:
+        size: 0
+        data: []
+    HiddenComment:
+      description: An hidden comment
+      value:
+        id: 86173d9f-f7f4-4965-8e9d-f37783bf6fa8
+        title: My hidden Comment
+        text: 'Hello, this is an hidden comment! You don''t know who made it!'
+        author:
+          hidden: true
+          name: Hidden
+          picture: 'https://cdn.anonymoose.com/u/hidden.png'
+        comments:
+          size: 2
+        parent: 86173d9f-f7f4-4965-8e9d-f37783bf6fa8
+    EmptyTweetList:
+      description: An empty list of tweets
+      value:
+        size: 0
+        data: []
     HiddenTweet:
       description: An hidden tweet
       value:
@@ -384,11 +565,8 @@ components:
           hidden: true
           name: Hidden
           picture: 'https://cdn.anonymoose.com/u/hidden.png'
-    EmptyTweetList:
-      description: An empty list of tweets
-      value:
-        size: 0
-        data: []
+        comments:
+          size: 2
     NotHiddenTweetList:
       description: A list of tweets
       value:
@@ -402,6 +580,8 @@ components:
               id: 86173d9f-f7f4-4965-8e9d-f37783bf6fa7
               name: 0ddlyoko
               picture: 'https://cdn.anonymoose.com/u/86173d9f-f7f4-4965-8e9d-f37783bf6fa7.png'
+            comments:
+              size: 2
           - id: 86173d9f-f7f4-4965-8e9d-f37783bf6fa8
             title: My hidden Tweet
             text: 'Hello, this is an hidden tweet! You don''t know who made it!'
@@ -410,6 +590,8 @@ components:
               id: 86173d9f-f7f4-4965-8e9d-f37783bf6fa7
               name: 0ddlyoko
               picture: 'https://cdn.anonymoose.com/u/86173d9f-f7f4-4965-8e9d-f37783bf6fa7.png'
+            comments:
+              size: 0
     Tweet:
       description: A tweet
       value:
@@ -421,6 +603,8 @@ components:
           id: 86173d9f-f7f4-4965-8e9d-f37783bf6fa7
           name: 0ddlyoko
           picture: 'https://cdn.anonymoose.com/u/86173d9f-f7f4-4965-8e9d-f37783bf6fa7.png'
+        comments:
+          size: 2
     TweetList:
       description: A list of tweets
       value:
@@ -434,6 +618,8 @@ components:
               id: 86173d9f-f7f4-4965-8e9d-f37783bf6fa7
               name: 0ddlyoko
               picture: 'https://cdn.anonymoose.com/u/86173d9f-f7f4-4965-8e9d-f37783bf6fa7.png'
+            comments:
+              size: 2
           - id: 86173d9f-f7f4-4965-8e9d-f37783bf6fa8
             title: My hidden Tweet
             text: 'Hello, this is an hidden tweet! You don''t know who made it!'
@@ -441,6 +627,8 @@ components:
               hidden: true
               name: Hidden
               picture: 'https://cdn.anonymoose.com/u/hidden.png'
+            comments:
+              size: 0
     EmptyUserList:
       description: An empty list of users
       value:
@@ -480,6 +668,12 @@ components:
         type: string
         format: uuid
       required: true
+    Comment:
+      name: comment
+      in: query
+      description: Retrieves comments with tweets. Default = false
+      schema:
+        type: boolean
     Limit:
       name: limit
       in: query
@@ -524,6 +718,24 @@ components:
           examples:
             existingProfile:
               $ref: '#/components/examples/Profile'
+    Comment:
+      description: Comment
+      content:
+        application/json:
+          examples:
+            existingComment:
+              $ref: '#/components/examples/Comment'
+            hiddenTweet:
+              $ref: '#/components/examples/HiddenTweet'
+    CommentList:
+      description: List comments for a tweet
+      content:
+        application/json:
+          examples:
+            existingComments:
+              $ref: '#/components/examples/CommentList'
+            emptyComments:
+              $ref: '#/components/examples/EmptyCommentList'
     Tweet:
       description: Tweet
       content:

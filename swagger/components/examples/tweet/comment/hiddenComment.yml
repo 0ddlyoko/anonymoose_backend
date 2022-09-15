@@ -1,0 +1,12 @@
+description: "An hidden comment"
+value:
+  id: 86173d9f-f7f4-4965-8e9d-f37783bf6fa8
+  title: My hidden Comment
+  text: Hello, this is an hidden comment! You don't know who made it!
+  author:
+    hidden: true
+    name: Hidden
+    picture: https://cdn.anonymoose.com/u/hidden.png
+  comments:
+    size: 2
+  parent: 86173d9f-f7f4-4965-8e9d-f37783bf6fa8

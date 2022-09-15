@@ -7,3 +7,5 @@ value:
     hidden: true
     name: Hidden
     picture: https://cdn.anonymoose.com/u/hidden.png
+  comments:
+    size: 2

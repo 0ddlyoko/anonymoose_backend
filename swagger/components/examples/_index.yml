@@ -3,10 +3,21 @@ Profile:
   $ref: './profile/profile.yml'
 
 # Tweet
-HiddenTweet:
-  $ref: './tweet/hiddenTweet.yml'
+Comment:
+  $ref: './tweet/comment/comment.yml'
+CommentAndTweetList:
+  $ref: './tweet/comment/commentAndTweetList.yml'
+CommentList:
+  $ref: './tweet/comment/commentList.yml'
+EmptyCommentList:
+  $ref: './tweet/comment/emptyCommentList.yml'
+HiddenComment:
+  $ref: './tweet/comment/hiddenComment.yml'
+
 EmptyTweetList:
   $ref: './tweet/emptyTweetList.yml'
+HiddenTweet:
+  $ref: './tweet/hiddenTweet.yml'
 NotHiddenTweetList:
   $ref: './tweet/notHiddenTweetList.yml'
 Tweet:

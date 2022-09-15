@@ -1,0 +1,5 @@
+name: "comment"
+in: query
+description: "Retrieves comments with tweets. Default = false"
+schema:
+  type: boolean

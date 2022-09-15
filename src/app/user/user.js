@@ -35,9 +35,9 @@ exports.getUsers = (event, ctx, callback) => {
 exports.getUser = (event, ctx, callback) => {
     console.info('getUser', 'received: ', event);
 
-    const id = event.pathParameters.userId;
+    const userId = event.pathParameters.userId;
     // This should be an uuid
-    if (!isUuid(id)) {
+    if (!isUuid(userId)) {
         callback(null, request.makeErrorRequest(400, "Please enter a valid uuid"));
         return;
     }
@@ -45,7 +45,7 @@ exports.getUser = (event, ctx, callback) => {
     db.getItem({
         TableName: "User",
         Key: {
-            id: {S: id},
+            id: {S: userId},
         },
     })
         .promise()

@@ -36,6 +36,8 @@ paths:
     $ref: './paths/tweet/tweet.yml'
   /tweet/{tweetId}:
     $ref: './paths/tweet/id.yml'
+  /tweet/{tweetId}/comment:
+    $ref: './paths/tweet/comment/comment.yml'
 
 components:
   examples:

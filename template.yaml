@@ -166,7 +166,7 @@ Resources:
   PostTweetFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Description: Retrieve current tweet information
+      Description: Create a new tweet
       FunctionName: Anonymoose-Test-postTweet
       Policies:
         - DynamoDBCrudPolicy:
@@ -175,6 +175,32 @@ Resources:
             TableName: !Ref TweetTable
       CodeUri: src/app/tweet
       Handler: tweet.postTweet
+
+  GetTweetCommentsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: Retrieves all comments for a tweet
+      FunctionName: Anonymoose-Test-getTweetComment
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UserTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TweetTable
+      CodeUri: src/app/tweet
+      Handler: tweet.getTweetComments
+
+  PostTweetCommentFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: Create a new comment for a tweet
+      FunctionName: Anonymoose-Test-postTweetComment
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UserTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TweetTable
+      CodeUri: src/app/tweet
+      Handler: tweet.postTweetComment
 
   # Simple syntax to create a DynamoDB table with a single attribute primary key, more in
   # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlesssimpletable
@@ -216,6 +242,8 @@ Resources:
           AttributeType: S
         - AttributeName: author
           AttributeType: S
+        - AttributeName: parent
+          AttributeType: S
       KeySchema:
         - AttributeName: id
           KeyType: HASH
@@ -223,6 +251,12 @@ Resources:
         - IndexName: AuthorIndex
           KeySchema:
             - AttributeName: author
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+        - IndexName: ParentIndex
+          KeySchema:
+            - AttributeName: parent
               KeyType: HASH
           Projection:
             ProjectionType: ALL

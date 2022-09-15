@@ -1,0 +1,8 @@
+description: "List comments for a tweet"
+content:
+  application/json:
+    examples:
+      existingComments:
+        $ref: '../../../examples/tweet/comment/commentList.yml'
+      emptyComments:
+        $ref: '../../../examples/tweet/comment/emptyCommentList.yml'

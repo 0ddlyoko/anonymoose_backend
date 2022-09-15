@@ -15,6 +15,10 @@ Profile:
   $ref: './profile/profile.yml'
 
 # Tweet
+Comment:
+  $ref: './tweet/comment/comment.yml'
+CommentList:
+  $ref: './tweet/comment/commentList.yml'
 Tweet:
   $ref: './tweet/tweet.yml'
 TweetList:
