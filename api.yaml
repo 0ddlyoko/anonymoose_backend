@@ -44,6 +44,8 @@ paths:
           $ref: '#/components/responses/UserList'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
+      security:
+        - amazonCognito: []
     options:
       responses:
         '200':
@@ -91,6 +93,8 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '404':
           $ref: '#/components/responses/NotFoundError'
+      security:
+        - amazonCognito: []
     options:
       responses:
         '200':
@@ -145,6 +149,8 @@ paths:
                   $ref: '#/components/examples/EmptyTweetList'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
+      security:
+        - amazonCognito: []
     options:
       responses:
         '200':
@@ -261,6 +267,8 @@ paths:
           $ref: '#/components/responses/TweetList'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
+      security:
+        - amazonCognito: []
     post:
       operationId: postTweet
       summary: Create a new tweet
@@ -334,6 +342,8 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '404':
           $ref: '#/components/responses/NotFoundError'
+      security:
+        - amazonCognito: []
     options:
       responses:
         '200':
@@ -379,6 +389,8 @@ paths:
           $ref: '#/components/responses/CommentList'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
+      security:
+        - amazonCognito: []
     post:
       operationId: postTweetComment
       summary: Create a new comment for a tweet

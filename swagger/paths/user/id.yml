@@ -21,8 +21,8 @@ get:
       $ref: '../../components/responses/error/unauthorized.yml'
     404:
       $ref: '../../components/responses/error/notFound.yml'
-#  security:
-#    - amazonCognito: []
+  security:
+    - amazonCognito: []
 
 options:
   responses:

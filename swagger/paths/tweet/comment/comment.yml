@@ -19,8 +19,8 @@ get:
       $ref: '../../../components/responses/tweet/comment/commentList.yml'
     401:
       $ref: '../../../components/responses/error/unauthorized.yml'
-#  security:
-#    - amazonCognito: []
+  security:
+    - amazonCognito: []
 post:
   operationId: postTweetComment
   summary: "Create a new comment for a tweet"

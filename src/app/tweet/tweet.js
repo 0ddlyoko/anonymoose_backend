@@ -108,26 +108,28 @@ exports.postTweet = (event, ctx, callback) => {
         return;
     }
     const hideAuthor = author === undefined || author.hidden;
-    authorizer.getUser(event, db).then(data => {
-        if (data.Items.length === 0)
-            return request.makeErrorRequest(404, "Profile not found");
-        const user = data.Items[0];
+    authorizer.getUser(event, db)
+        .catch(() => request.makeErrorRequest(404, "Invalid authorizer"))
+        .then(data => {
+            // Check if the previous catch has been executed
+            if (!data.id)
+                return data;
 
-        const item = {
-            id: {S: uuidv4()},
-            title: {S: title},
-            text: {S: text},
-            author: {S: user.id.S},
-            hideAuthor: {BOOL: hideAuthor},
-        };
-        return db.putItem({
-            TableName: "Tweet",
-            Item: item,
+            const item = {
+                id: {S: uuidv4()},
+                title: {S: title},
+                text: {S: text},
+                author: {S: data.id.S},
+                hideAuthor: {BOOL: hideAuthor},
+            };
+            return db.putItem({
+                TableName: "Tweet",
+                Item: item,
+            })
+                .promise()
+                .then(_ => tweetToJson(item))
+                .then(data => request.makeRequest(200, data))
         })
-            .promise()
-            .then(_ => tweetToJson(item))
-            .then(data => request.makeRequest(200, data))
-    })
         .catch(() => request.makeErrorRequest(400, "Invalid authorizer"))
         .then(data => callback(null, data));
 };
@@ -175,4 +177,54 @@ exports.postTweetComment = (event, ctx, callback) => {
         return;
     }
 
+    if (!event.body) {
+        callback(null, request.makeErrorRequest(400, "Please enter a valid body"));
+        return;
+    }
+    let { title, text, author } = JSON.parse(event.body);
+    if (!title || !text) {
+        callback(null, request.makeErrorRequest(400, "Please enter a valid body"));
+        return;
+    }
+    const hideAuthor = author === undefined || author.hidden;
+
+    const item = {
+        id: {S: uuidv4()},
+        title: {S: title},
+        text: {S: text},
+        hideAuthor: {BOOL: hideAuthor},
+        parent: {S: tweetId},
+    };
+    authorizer.getUser(event, db)
+        .catch(ex => request.makeErrorRequest(400, ex))
+        .then(data => {
+            // Check if the previous catch has been executed
+            if (!data.id)
+                return data;
+            item['author'] = {S: data.id.S}
+            return db.putItem({
+                TableName: "Tweet",
+                Item: item,
+            }).promise()
+        })
+        .then(_ => {
+            // Add one to "commentSize"
+            // If there is an error, ignore it
+            return db.updateItem({
+                TableName: "Tweet",
+                Key: {
+                    id: {S: tweetId},
+                },
+                UpdateExpression: "SET commentSize = if_not_exists(commentSize, :zero) + :one",
+                ExpressionAttributeValues: {
+                    ":zero": {N: "0"},
+                    ":one": {N: "1"},
+                }
+            }).promise()
+                .catch(ex => console.error(ex))
+        })
+        .then(_ => tweetToJson(item))
+        .then(data => request.makeRequest(200, data))
+        .catch(ex => request.makeServerErrorRequest(ex, "exports.postTweetComment"))
+        .then(data => callback(null, data));
 };

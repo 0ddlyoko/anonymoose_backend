@@ -21,8 +21,8 @@ get:
       $ref: '../../../components/responses/user/tweet/tweetList.yml'
     401:
       $ref: '../../../components/responses/error/unauthorized.yml'
-#  security:
-#    - amazonCognito: []
+  security:
+    - amazonCognito: []
 
 options:
   responses:
