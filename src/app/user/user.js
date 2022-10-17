@@ -8,7 +8,7 @@ const userToJson = user => {
         "id": user.id.S,
         "name": user.name.S,
         "email": user.email.S,
-        "firstConnection": user.firstConnection ? user.firstConnection.N : 0,
+        "firstConnection": user.firstConnection ? parseInt(user.firstConnection.N) : 0,
     };
 };
 

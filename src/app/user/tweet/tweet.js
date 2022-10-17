@@ -21,7 +21,7 @@ const tweetToJson = tweet => {
         "text": tweet.text.S,
         "author": author,
         "comments": {
-            "size": tweet.commentSize ? tweet.commentSize.N : 0,
+            "size": tweet.commentSize ? parseInt(tweet.commentSize.N) : 0,
         },
     };
     if (tweet.parent)
